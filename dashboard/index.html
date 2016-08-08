@@ -12,7 +12,8 @@
 // This function draws bars for a single series. See
       // multiColumnBarPlotter below for a plotter which can draw multi-series
       // bar charts.
-      function barChartPlotter(e) {
+    function barChartPlotter(e) {
+        console.log('Yeah, I am good');
         var ctx = e.drawingContext;
         var points = e.points;
         var y_bottom = e.dygraph.toDomYCoord(0);
@@ -23,79 +24,73 @@
         // This determines the bar width.
         var min_sep = Infinity;
         for (var i = 1; i < points.length; i++) {
-          var sep = points[i].canvasx - points[i - 1].canvasx;
-          if (sep < min_sep) min_sep = sep;
+            var sep = points[i].canvasx - points[i - 1].canvasx;
+            if (sep < min_sep) min_sep = sep;
         }
         var bar_width = Math.floor(2.0 / 3 * min_sep);
 
         // Do the actual plotting.
         for (var i = 0; i < points.length; i++) {
-          var p = points[i];
-          var center_x = p.canvasx;
+            var p = points[i];
+            var center_x = p.canvasx;
 
-          ctx.fillRect(center_x - bar_width / 2, p.canvasy,
-              bar_width, y_bottom - p.canvasy);
+            ctx.fillRect(center_x - bar_width / 2, p.canvasy,
+                bar_width, y_bottom - p.canvasy);
 
-          ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
-              bar_width, y_bottom - p.canvasy);
+            ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
+                bar_width, y_bottom - p.canvasy);
         }
-      }
-
-
- $(document).ready(function () {
-	 
-	 // A basic sinusoidal data series.
-      var data = [];
-      for (var i = 0; i < 1000; i++) {
-        var base = 10 * Math.sin(i / 90.0);
-        data.push([i, base, base + Math.sin(i / 2.0)]);
-      }
-
-      // Shift one portion out of line.
-      var highlight_start = 450;
-      var highlight_end = 500;
-      for (var i = highlight_start; i <= highlight_end; i++) {
-        data[i][2] += 5.0;
-      }
-	 
-	 
-      new Dygraph(
-              document.getElementById("cangwei"),
-			  
-              function() {
-                var zp = function(x) { if (x < 10) return "0"+x; else return x; };
-                var r = "date,line,sine wave\n";
-                for (var i=1; i<=31; i++) {
-                r += "200610" + zp(i);
-                r += "," + 10*(8*i);
-                r += "," + 10*(125 + 125 * Math.sin(0.3*i));
-                r += "\n";
-                }
-                return r;
-              },
-			  
-              {
-                strokeWidth: 2,
-				drawGrid: false,
-				axisLineColor: "rgba(255,255,255,0.7)",
-                
-                'line': {
-                  strokeWidth: 5,
-                  drawPoints: true,
-                  highlightCircleSize: 4,
-				  color: "#d8b5b5"
-                	},
-                'sine wave': {
-                  strokeWidth: 3,
-                  highlightCircleSize: 3,
-				  color: "#07abce"
-                },
-				"B": {
-                  plotter: barChartPlotter
-                }
-              }
-          );
     }
+
+
+    $(document).ready(function () {
+
+	       // A basic sinusoidal data series.
+            var data = [];
+            for (var i = 0; i < 1000; i++) {
+                var base = 10 * Math.sin(i / 90.0);
+                data.push([i, base, base + Math.sin(i / 2.0)]);
+            }
+
+            // Shift one portion out of line.
+            var highlight_start = 50;
+            var highlight_end = 100;
+
+
+
+            new Dygraph(
+                document.getElementById("cangwei"),
+
+                function() {
+                    var zp = function(x) { if (x < 10) return "0"+x; else return x; };
+                    var r = "date,line,sine wave\n";
+                    for (var i=1; i<=31; i++) {
+                        r += "200610" + zp(i);
+                        r += "," + 10*(8*i);
+                        r += "," + 10*(125 + 125 * Math.sin(0.3*i));
+                        r += "\n";
+                    }
+                    return r;
+                },
+
+                {
+                    strokeWidth: 2,
+                    drawGrid: false,
+                    //axisLineColor: "rgba(255,255,255,0.7)",
+                    underlayCallback: function(canvas, area, g) {
+                        console.log(g);
+                        var bottom_left = g.toDomCoords(highlight_start, -20);
+                        var top_right = g.toDomCoords(highlight_end, +20);
+
+                        var left = bottom_left[1];
+                        var right = top_right[1];
+
+                        canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
+                        canvas.fillRect(left, area.y, right - left, area.h);
+                    }                    
+                }
+            );
+        }
 );
 </script>
 </head>
