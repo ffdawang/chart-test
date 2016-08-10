@@ -7,8 +7,9 @@
 <script src="js/jquery-1.11.1.min.js"></script>
 <script src="js/dygraph-combined.js"></script>
 <script src="js/synchronizer.js"></script>
-<script>
+<script src="js/data.js"></script>
 
+<script>
 // This function draws bars for a single series. See
       // multiColumnBarPlotter below for a plotter which can draw multi-series
       // bar charts.
@@ -45,6 +46,10 @@
 
     $(document).ready(function () {
 
+            // load data 
+            var dataList = DataList.create();
+            dataList.load('../data/index20160726.txt');
+
 	       // A basic sinusoidal data series.
             var data = [];
             for (var i = 0; i < 1000; i++) {
@@ -78,7 +83,6 @@
                     drawGrid: false,
                     //axisLineColor: "rgba(255,255,255,0.7)",
                     underlayCallback: function(canvas, area, g) {
-                        console.log(g);
                         var bottom_left = g.toDomCoords(highlight_start, -20);
                         var top_right = g.toDomCoords(highlight_end, +20);
 
