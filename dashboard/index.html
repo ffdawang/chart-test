@@ -48,7 +48,7 @@
 
             // load data 
             var dataList = DataList.create();
-            dataList.load('../data/index20160726.txt');
+            dataList.load('data/index20160726.txt');
 
 	       // A basic sinusoidal data series.
             var data = [];
@@ -79,9 +79,11 @@
                 },
 
                 {
-                    strokeWidth: 2,
+                    strokeWidth: 3,
                     drawGrid: false,
-                    //axisLineColor: "rgba(255,255,255,0.7)",
+                    axisLineColor: "rgba(255,255,255,0.7)",
+					axisLineWidth: 2,
+					colors: ["#07abce", "#d8b5b5"], 
                     underlayCallback: function(canvas, area, g) {
                         var bottom_left = g.toDomCoords(highlight_start, -20);
                         var top_right = g.toDomCoords(highlight_end, +20);
@@ -89,7 +91,7 @@
                         var left = bottom_left[1];
                         var right = top_right[1];
 
-                        canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
+                        canvas.fillStyle = "#a08734";
                         canvas.fillRect(left, area.y, right - left, area.h);
                     }                    
                 }
