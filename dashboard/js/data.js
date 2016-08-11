@@ -12,7 +12,6 @@ var node = {
     merge:function(nd, ar) {
         bs = ar[0].trim().split('/');
         bs = bs[bs.length-1]
-        console.log(bs.substr(4, 14));
         var tt = Number(bs.substr(4, 14));
         if( !nd ) {
             nd = this.create();
@@ -23,9 +22,9 @@ var node = {
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
         } else {
             // cross hour boundary or not?
-            var hour = parseInt(tt/10000);
-            var newhour = parseInt(nd.time/10000);
-            while( hour != newhour ) {
+            var newhour = parseInt(tt/10000);
+            var hour = parseInt(nd.time/10000);
+            while( hour < newhour ) {
                 snd = this.create();
                 snd.time = hour*10000;
                 snd.weight = nd.weight;
@@ -36,6 +35,7 @@ var node = {
                 nd = snd;
                 hour++;
             }
+            if( hour > newhour ) throw 'You give me rubbish data?';
             if( nd.imgUpdate != Number(ar[5].substr(0,ar[5].length-2)) ||
                 nd.weight != Number(ar[1]) || nd.weight != Number(ar[3]) ) {
                 // info changed
@@ -48,33 +48,47 @@ var node = {
                 nd.next = snd;
                 nd = snd;
             }
-            return nd;
         }
+        return nd;
     }
 };
 
 var DataList = {
     create:function() {
         var instance = {
+            name:'data list',
             head:null,
             tail:null,
-            load:function(url){
-                $.get(url, function(data){
-                    lines = data.trim().split('\n');
-                    nd = null;
-                    for( i in lines ) {
-                        ss = lines[i].trim().split(',');
-                        if( ss.length ) {
-                            nd = node.merge(nd, ss)
-                            if( !this.head ) this.head = nd;
-                        } 
-                    }
-                    this.tail = nd;
-                });
+            load:function(data){
+                var lines = data.trim().split('\n');
+                var nd = null;
+                for( i in lines ) {
+                    ss = lines[i].trim().split(',');
+                    if( ss.length ) {
+                        nd = node.merge(nd, ss)
+                        if( this.head == null ) this.head = nd;
+                    } 
+                }
+                this.tail = nd;
             },
             clear:function(){},
             prepareData:function(span) {
-
+                var data = '';
+                if( !this.head ) {
+                    return data;
+                }
+                if( span == '1day') {} 
+                else if( span == '10day') {}
+                else if( span == '3hour') {
+                    var nd = this.head;
+                    while( nd != null ) {
+                        data += nd.time;
+                        data += ',' + nd.weight;
+                        data += ',' + nd.volume + '\n';
+                        nd = nd.next;
+                    }
+                }
+                return data;
             }
         };
         return instance;

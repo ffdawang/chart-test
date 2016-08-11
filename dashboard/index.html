@@ -14,7 +14,6 @@
       // multiColumnBarPlotter below for a plotter which can draw multi-series
       // bar charts.
     function barChartPlotter(e) {
-        console.log('Yeah, I am good');
         var ctx = e.drawingContext;
         var points = e.points;
         var y_bottom = e.dygraph.toDomYCoord(0);
@@ -43,57 +42,54 @@
         }
     }
 
+    var g_graph = null;
+    var createGraph = function(data) {
+        var highlight_start = 50;
+        var highlight_end = 100;
+        if( g_graph ) g_graph.destroy();
+        g_graph = new Dygraph(
+            document.getElementById("cangwei"),
+            data,
+            {
+                strokeWidth: 2,
+                drawGrid: false,
+                //axisLineColor: "rgba(255,255,255,0.7)",
+                underlayCallback: function(canvas, area, g) {
+                    var bottom_left = g.toDomCoords(highlight_start, -20);
+                    var top_right = g.toDomCoords(highlight_end, +20);
+                    var left = bottom_left[1];
+                    var right = top_right[1];
+                    canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
+                    canvas.fillRect(left, area.y, right - left, area.h);
+                }                    
+            }
+        );
+    }
 
     $(document).ready(function () {
 
             // load data 
             var dataList = DataList.create();
-            dataList.load('../data/index20160726.txt');
+            var data = '';
+            $.get('../data/index20160726.txt', function(txt){
+                dataList.load(txt);
+                data = '';
+                data = dataList.prepareData('3hour');
+                console.log(data);
+                createGraph(data);
+            })
 
 	       // A basic sinusoidal data series.
-            var data = [];
-            for (var i = 0; i < 1000; i++) {
-                var base = 10 * Math.sin(i / 90.0);
-                data.push([i, base, base + Math.sin(i / 2.0)]);
-            }
+            // var data = [];
+            // for (var i = 0; i < 1000; i++) {
+            //     var base = 10 * Math.sin(i / 90.0);
+            //     data.push([i, base, base + Math.sin(i / 2.0)]);
+            // }
 
             // Shift one portion out of line.
-            var highlight_start = 50;
-            var highlight_end = 100;
 
 
 
-            new Dygraph(
-                document.getElementById("cangwei"),
-
-                function() {
-                    var zp = function(x) { if (x < 10) return "0"+x; else return x; };
-                    var r = "date,line,sine wave\n";
-                    for (var i=1; i<=31; i++) {
-                        r += "200610" + zp(i);
-                        r += "," + 10*(8*i);
-                        r += "," + 10*(125 + 125 * Math.sin(0.3*i));
-                        r += "\n";
-                    }
-                    return r;
-                },
-
-                {
-                    strokeWidth: 2,
-                    drawGrid: false,
-                    //axisLineColor: "rgba(255,255,255,0.7)",
-                    underlayCallback: function(canvas, area, g) {
-                        var bottom_left = g.toDomCoords(highlight_start, -20);
-                        var top_right = g.toDomCoords(highlight_end, +20);
-
-                        var left = bottom_left[1];
-                        var right = top_right[1];
-
-                        canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
-                        canvas.fillRect(left, area.y, right - left, area.h);
-                    }                    
-                }
-            );
         }
 );
 </script>
