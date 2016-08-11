@@ -44,8 +44,8 @@
 
     var g_graph = null;
     var createGraph = function(data) {
-        var highlight_start = 50;
-        var highlight_end = 100;
+        var highlight_start = 5;
+        var highlight_end = 10;
         if( g_graph ) g_graph.destroy();
         g_graph = new Dygraph(
             document.getElementById("cangwei"),
@@ -55,12 +55,12 @@
                 drawGrid: false,
                 //axisLineColor: "rgba(255,255,255,0.7)",
                 underlayCallback: function(canvas, area, g) {
-                    var bottom_left = g.toDomCoords(highlight_start, -20);
-                    var top_right = g.toDomCoords(highlight_end, +20);
-                    var left = bottom_left[1];
-                    var right = top_right[1];
-                    canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
-                    canvas.fillRect(left, area.y, right - left, area.h);
+                    //var bottom_left = g.toDomCoords(highlight_start, -2);
+                    //var top_right = g.toDomCoords(highlight_end, +2);
+                    //var left = bottom_left[1];
+                    //var right = top_right[1];
+                    //canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
+                    //canvas.fillRect(left, area.y, right - left, area.h);
                 }                    
             }
         );
