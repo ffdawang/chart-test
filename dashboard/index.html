@@ -10,42 +10,10 @@
 <script src="js/data.js"></script>
 
 <script>
-// This function draws bars for a single series. See
-      // multiColumnBarPlotter below for a plotter which can draw multi-series
-      // bar charts.
-    function barChartPlotter(e) {
-        var ctx = e.drawingContext;
-        var points = e.points;
-        var y_bottom = e.dygraph.toDomYCoord(0);
-
-        ctx.fillStyle = darkenColor(e.color);
-
-        // Find the minimum separation between x-values.
-        // This determines the bar width.
-        var min_sep = Infinity;
-        for (var i = 1; i < points.length; i++) {
-            var sep = points[i].canvasx - points[i - 1].canvasx;
-            if (sep < min_sep) min_sep = sep;
-        }
-        var bar_width = Math.floor(2.0 / 3 * min_sep);
-
-        // Do the actual plotting.
-        for (var i = 0; i < points.length; i++) {
-            var p = points[i];
-            var center_x = p.canvasx;
-
-            ctx.fillRect(center_x - bar_width / 2, p.canvasy,
-                bar_width, y_bottom - p.canvasy);
-
-            ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
-                bar_width, y_bottom - p.canvasy);
-        }
-    }
-
     var g_graph = null;
     var createGraph = function(data) {
-        var highlight_start = 5;
-        var highlight_end = 10;
+        var dw = $('#display_weight');
+        var dv = $('#display_volume');
         if( g_graph ) g_graph.destroy();
         g_graph = new Dygraph(
             document.getElementById("cangwei"),
@@ -70,25 +38,33 @@
                 strokeWidth: 2,
                 drawGrid: false,
                 visibility:[true,true,false],
-                //axisLineColor: "rgba(255,255,255,0.7)",
+                axisLineColor: "rgba(255,255,255,0.7)",
+                displayWeight: dw,
+                displayVolume: dv,
+                valueFormatter:function(num, opt, name, g, row, col) {
+                    if( name == 'Y1' ) dw.text(num);
+                    else if( name == 'Y2') dv.text(num);
+                },
+                highlighCallback:function(event, x, points, row, name ) {
+                    console.log(JSON.stringify(event) + ' ' + x + ' ' + JSON.stringify(points) + ' ' + row + ' ' + name );
+                },
+                clickCallback: function(e, x, point) {
+                },
+                pointClickCallback:function(e, point) {
+                    console.log('pointClickCallback: '+point);
+                },
                 underlayCallback: function(canvas, area, g) {
                     function highlight_event(x_start, eventType) {
-                        if( eventType == 101 ) canvas.fillStyle='rgba(255,100,100,1.0)';
-                        else if( eventType == 102 ) canvas.fillStyle='rgba(255,255,50,1.0)';
-                        else return;
                         var canvas_left_x = g.toDomXCoord(x_start);
-                        canvas.strokeStyle='#FF0000';
-                        canvas.lineWidth = 2;
+                        if(eventType==101) canvas.strokeStyle='#FF0000';
+                        else if(eventType==102) canvas.strokeStyle='#FFFF00';
+                        canvas.lineWidth = 1;
                         canvas.beginPath();
                         canvas.moveTo(canvas_left_x, area.y);
                         canvas.lineTo(canvas_left_x, area.h);
                         canvas.closePath();
                         canvas.stroke();
                     }
-                        canvas.strokeStyle='#FF0000';
-                        canvas.lineWidth = 2;
-                        canvas.moveTo(0,0);
-                        canvas.lineTo(100,100);
                     for( i=0; i<g.numRows(); i++ ) {
                         w = g.getValue(i,3);
                         if( w != 10 ) {
@@ -96,12 +72,6 @@
                             highlight_event( a, w);
                         }
                     }
-                    //var bottom_left = g.toDomCoords(highlight_start, -2);
-                    //var top_right = g.toDomCoords(highlight_end, +2);
-                    //var left = bottom_left[1];
-                    //var right = top_right[1];
-                    //canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
-                    //canvas.fillRect(left, area.y, right - left, area.h);
                 }                    
             }
         );
@@ -113,7 +83,6 @@
             var data = '';
             $.get('../data/index20160726.txt', function(txt){
                 dataList.load(txt);
-                data = '';
                 data = dataList.prepareData('3hour');
                 createGraph(data);
             })
@@ -198,7 +167,11 @@
                 <button class="time-pick">10天</button> <button class="time-pick time-selected">1天</button> <button class="time-pick">3小时</button>
                 </div>
                 <div class="wh-info">
-                重量：455.747T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;体积：68.204M3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;最新更新时间：00:01
+                    <span>
+                    重量：<label id="display_weight">--</label> T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    体积：<label id="display_volume">--</label> M3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    更新时间：<label id="display_updatetime"></label>
+                    </span>
                 </div>
                 <div class="clear">
                 </div>

@@ -30,7 +30,6 @@ var node = {
         bs = bs[bs.length-1]
         timestr = bs.substr(4,4) + '/' + bs.substr(8,2) + '/' + bs.substr(10,2) + ' ' + bs.substr(12,2) + ':' + bs.substr(14,2) + ':' + bs.substr(16,2);
         var tt = new Date(timestr);
-        //var tt = Number(bs.substr(4, 14));
         if( !nd ) {
             nd = this.create();
             nd.time = tt;
@@ -41,8 +40,6 @@ var node = {
             nd.evtCode = Number(ar[6]);
         } else {
             // cross hour boundary or not?
-            //var newhour = parseInt(tt/10000);
-            //var hour = parseInt(nd.time/10000);
             while( nd.time < tt  && tt.getHours() != nd.time.getHours() ) {
                 snd = this.create();
                 snd.time = new Date(nd.time.getYear()+1900, nd.time.getMonth(), nd.time.getDate(),
@@ -104,9 +101,6 @@ var DataList = {
                     var nd = this.head;
                     while( nd != null ) {
                         data.push([nd.time, nd.weight, nd.volume, nd.evtCode]);
-                        //data += nd.time.fmtTime();
-                        //data += ',' + nd.weight;
-                        //data += ',' + nd.volume + '\n';
                         nd = nd.next;
                     }
                 }
