@@ -1,17 +1,17 @@
-Date.prototype.addHours = function(h) {
-    this.setTime(this.getTime() + (h*60*60*1000));
-    return this;
-};
+// Date.prototype.addHours = function(h) {
+//     this.setTime(this.getTime() + (h*60*60*1000));
+//     return this;
+// };
 
-Date.prototype.fmtTime = function() {
-    mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
-    da = this.getDate() >= 10 ? this.getDate() : '0' + this.getDate();
-    hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
-    mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
-    se = this.getSeconds() >= 10 ? this.getSeconds() : '0' + this.getSeconds();
-    return (1900+this.getYear()) + '/' + mon + '/' + da + ' ' + 
-        hr + ':' + mi + ':' + se ;
-}
+// Date.prototype.fmtTime = function() {
+//     mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
+//     da = this.getDate() >= 10 ? this.getDate() : '0' + this.getDate();
+//     hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
+//     mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
+//     se = this.getSeconds() >= 10 ? this.getSeconds() : '0' + this.getSeconds();
+//     return (1900+this.getYear()) + '/' + mon + '/' + da + ' ' + 
+//         hr + ':' + mi + ':' + se ;
+// }
 
 var node = {
     create:function() {
@@ -21,6 +21,7 @@ var node = {
             volume:0,
             jsonurl:null,
             imgUpdate:0,
+            evtCode:0,
             next:null
         };
     },
@@ -37,6 +38,7 @@ var node = {
             nd.volume = Number(ar[3]);
             nd.jsonurl = ar[0];
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
+            nd.evtCode = Number(ar[6]);
         } else {
             // cross hour boundary or not?
             //var newhour = parseInt(tt/10000);
@@ -48,7 +50,8 @@ var node = {
                 snd.weight = nd.weight;
                 snd.volume = nd.volume;
                 snd.jsonurl = nd.jsonurl;
-                nd.imgUpdate = nd.imgUpdate;
+                snd.imgUpdate = nd.imgUpdate;
+                snd.evtCode = nd.evtCode;
                 nd.next = snd;
                 nd = snd;
             }
@@ -62,6 +65,7 @@ var node = {
                 snd.volume = Number(ar[3]);
                 snd.jsonurl = ar[0];
                 snd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
+                snd.evtCode = Number(ar[6]);
                 nd.next = snd;
                 nd = snd;
             }
@@ -90,7 +94,7 @@ var DataList = {
             },
             clear:function(){},
             prepareData:function(span) {
-                var data = '';
+                var data = [];
                 if( !this.head ) {
                     return data;
                 }
@@ -99,9 +103,10 @@ var DataList = {
                 else if( span == '3hour') {
                     var nd = this.head;
                     while( nd != null ) {
-                        data += nd.time.fmtTime();
-                        data += ',' + nd.weight;
-                        data += ',' + nd.volume + '\n';
+                        data.push([nd.time, nd.weight, nd.volume, nd.evtCode]);
+                        //data += nd.time.fmtTime();
+                        //data += ',' + nd.weight;
+                        //data += ',' + nd.volume + '\n';
                         nd = nd.next;
                     }
                 }

@@ -51,7 +51,7 @@
             document.getElementById("cangwei"),
             data,
             {
-                labels:['时间', 'Y1', 'Y2'],
+                labels:['时间', 'Y1', 'Y2', 'Y3'],
                 series:{
                     'Y1':{
                         axis:'y1'
@@ -69,8 +69,33 @@
                 y2label:'体积', 
                 strokeWidth: 2,
                 drawGrid: false,
+                visibility:[true,true,false],
                 //axisLineColor: "rgba(255,255,255,0.7)",
                 underlayCallback: function(canvas, area, g) {
+                    function highlight_event(x_start, eventType) {
+                        if( eventType == 101 ) canvas.fillStyle='rgba(255,100,100,1.0)';
+                        else if( eventType == 102 ) canvas.fillStyle='rgba(255,255,50,1.0)';
+                        else return;
+                        var canvas_left_x = g.toDomXCoord(x_start);
+                        canvas.strokeStyle='#FF0000';
+                        canvas.lineWidth = 2;
+                        canvas.beginPath();
+                        canvas.moveTo(canvas_left_x, area.y);
+                        canvas.lineTo(canvas_left_x, area.h);
+                        canvas.closePath();
+                        canvas.stroke();
+                    }
+                        canvas.strokeStyle='#FF0000';
+                        canvas.lineWidth = 2;
+                        canvas.moveTo(0,0);
+                        canvas.lineTo(100,100);
+                    for( i=0; i<g.numRows(); i++ ) {
+                        w = g.getValue(i,3);
+                        if( w != 10 ) {
+                            a = g.getValue(i,0);
+                            highlight_event( a, w);
+                        }
+                    }
                     //var bottom_left = g.toDomCoords(highlight_start, -2);
                     //var top_right = g.toDomCoords(highlight_end, +2);
                     //var left = bottom_left[1];
@@ -83,7 +108,6 @@
     }
 
     $(document).ready(function () {
-
             // load data 
             var dataList = DataList.create();
             var data = '';
@@ -91,7 +115,6 @@
                 dataList.load(txt);
                 data = '';
                 data = dataList.prepareData('3hour');
-                console.log(data);
                 createGraph(data);
             })
         }
