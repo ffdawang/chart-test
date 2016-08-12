@@ -1,3 +1,18 @@
+Date.prototype.addHours = function(h) {
+    this.setTime(this.getTime() + (h*60*60*1000));
+    return this;
+};
+
+Date.prototype.fmtTime = function() {
+    mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
+    da = this.getDate() >= 10 ? this.getDate() : '0' + this.getDate();
+    hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
+    mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
+    se = this.getSeconds() >= 10 ? this.getSeconds() : '0' + this.getSeconds();
+    return (1900+this.getYear()) + '/' + mon + '/' + da + ' ' + 
+        hr + ':' + mi + ':' + se ;
+}
+
 var node = {
     create:function() {
         return {
@@ -12,7 +27,9 @@ var node = {
     merge:function(nd, ar) {
         bs = ar[0].trim().split('/');
         bs = bs[bs.length-1]
-        var tt = Number(bs.substr(4, 14));
+        timestr = bs.substr(4,4) + '/' + bs.substr(8,2) + '/' + bs.substr(10,2) + ' ' + bs.substr(12,2) + ':' + bs.substr(14,2) + ':' + bs.substr(16,2);
+        var tt = new Date(timestr);
+        //var tt = Number(bs.substr(4, 14));
         if( !nd ) {
             nd = this.create();
             nd.time = tt;
@@ -22,20 +39,20 @@ var node = {
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
         } else {
             // cross hour boundary or not?
-            var newhour = parseInt(tt/10000);
-            var hour = parseInt(nd.time/10000);
-            while( hour < newhour ) {
+            //var newhour = parseInt(tt/10000);
+            //var hour = parseInt(nd.time/10000);
+            while( nd.time < tt  && tt.getHours() != nd.time.getHours() ) {
                 snd = this.create();
-                snd.time = hour*10000;
+                snd.time = new Date(nd.time.getYear()+1900, nd.time.getMonth(), nd.time.getDate(),
+                    nd.time.getHours()+1, 0, 0);
                 snd.weight = nd.weight;
                 snd.volume = nd.volume;
                 snd.jsonurl = nd.jsonurl;
                 nd.imgUpdate = nd.imgUpdate;
                 nd.next = snd;
                 nd = snd;
-                hour++;
             }
-            if( hour > newhour ) throw 'You give me rubbish data?';
+            if( nd.time > tt ) throw 'You give me rubbish data?';
             if( nd.imgUpdate != Number(ar[5].substr(0,ar[5].length-2)) ||
                 nd.weight != Number(ar[1]) || nd.weight != Number(ar[3]) ) {
                 // info changed
@@ -82,7 +99,7 @@ var DataList = {
                 else if( span == '3hour') {
                     var nd = this.head;
                     while( nd != null ) {
-                        data += nd.time;
+                        data += nd.time.fmtTime();
                         data += ',' + nd.weight;
                         data += ',' + nd.volume + '\n';
                         nd = nd.next;

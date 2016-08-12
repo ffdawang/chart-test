@@ -51,6 +51,22 @@
             document.getElementById("cangwei"),
             data,
             {
+                labels:['时间', 'Y1', 'Y2'],
+                series:{
+                    'Y1':{
+                        axis:'y1'
+                    },
+                    'Y2':{
+                        axis:'y2'
+                    }
+                },
+                axes:{
+                    y2:{
+                        labelsKMB:true
+                    }
+                },
+                ylabel:'重量',
+                y2label:'体积', 
                 strokeWidth: 2,
                 drawGrid: false,
                 //axisLineColor: "rgba(255,255,255,0.7)",
