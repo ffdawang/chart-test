@@ -22,6 +22,7 @@ var node = {
             jsonurl:null,
             imgUpdate:0,
             evtCode:0,
+            status:0,
             next:null
         };
     },
@@ -38,6 +39,7 @@ var node = {
             nd.jsonurl = ar[0];
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
             nd.evtCode = Number(ar[6]);
+            nd.status - Number(ar[7]);
         } else {
             // cross hour boundary or not?
             while( nd.time < tt  && tt.getHours() != nd.time.getHours() ) {
@@ -49,6 +51,7 @@ var node = {
                 snd.jsonurl = nd.jsonurl;
                 snd.imgUpdate = nd.imgUpdate;
                 snd.evtCode = nd.evtCode;
+                snd.status = nd.status;
                 nd.next = snd;
                 nd = snd;
             }
@@ -63,6 +66,7 @@ var node = {
                 snd.jsonurl = ar[0];
                 snd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
                 snd.evtCode = Number(ar[6]);
+                snd.status = Number(ar[7]);
                 nd.next = snd;
                 nd = snd;
             }
@@ -100,7 +104,7 @@ var DataList = {
                 else if( span == '3hour') {
                     var nd = this.head;
                     while( nd != null ) {
-                        data.push([nd.time, nd.weight, nd.volume, nd.evtCode]);
+                        data.push([nd.time, nd.weight, nd.volume, nd]);
                         nd = nd.next;
                     }
                 }

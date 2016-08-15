@@ -10,6 +10,21 @@
 <script src="js/data.js"></script>
 
 <script>
+    var updateImages = function(nd) {
+        if( !nd || !nd.jsonurl) return;
+        $.get(nd.jsonurl, function(data){
+            var len = data.shape.videoPic.length; 
+            for( i=1; i<=4; i++ ) {
+                cam = $('#cam-'+i);
+                if( len >= i) {
+                    cam.attr('src', data.shape.videoPic[i-1].url);
+                }
+                else cam.attr('src','');
+            }
+            $('#scanpic').attr('src', data.shape.shapePic[0].url );
+        });
+    }
+
     var g_graph = null;
     var createGraph = function(data) {
         var dw = $('#display_weight');
@@ -35,9 +50,9 @@
                 },
                 ylabel:'重量',
                 y2label:'体积', 
-                strokeWidth: 2,
+                strokeWidth: 1,
                 drawGrid: false,
-                visibility:[true,true,false],
+                visibility:[true,true,false ],
                 axisLineColor: "rgba(255,255,255,0.7)",
                 displayWeight: dw,
                 displayVolume: dv,
@@ -46,9 +61,15 @@
                     else if( name == 'Y2') dv.text(num);
                 },
                 highlighCallback:function(event, x, points, row, name ) {
-                    console.log(JSON.stringify(event) + ' ' + x + ' ' + JSON.stringify(points) + ' ' + row + ' ' + name );
                 },
                 clickCallback: function(e, x, point) {
+                    for( i=0; i<g_graph.numRows(); i++) {
+                        if( g_graph.getValue(i,0) == x){
+                            nd = g_graph.getValue(i,3);
+                            updateImages(nd);
+                            break;
+                        }
+                    }
                 },
                 pointClickCallback:function(e, point) {
                     console.log('pointClickCallback: '+point);
@@ -56,8 +77,8 @@
                 underlayCallback: function(canvas, area, g) {
                     function highlight_event(x_start, eventType) {
                         var canvas_left_x = g.toDomXCoord(x_start);
-                        if(eventType==101) canvas.strokeStyle='#FF0000';
-                        else if(eventType==102) canvas.strokeStyle='#FFFF00';
+                        if(eventType==101) canvas.strokeStyle='#FF5555';
+                        else if(eventType==102) canvas.strokeStyle='#FFFF55';
                         canvas.lineWidth = 1;
                         canvas.beginPath();
                         canvas.moveTo(canvas_left_x, area.y);
@@ -65,27 +86,54 @@
                         canvas.closePath();
                         canvas.stroke();
                     }
-                    for( i=0; i<g.numRows(); i++ ) {
-                        w = g.getValue(i,3);
-                        if( w != 10 ) {
-                            a = g.getValue(i,0);
-                            highlight_event( a, w);
+                    function highlight_region(x_start, x_end, status ) {
+                        var bottom_left = g.toDomCoords(x_start);
+                        var top_right = g.toDomCoords(x_end );
+                        if( status == 0 ) {
+                            canvas.fillStyle = 'rgba(200,200,200,1)';
+                            canvas.strokeStyle = '#c8c8c8';
+                            canvas.strokeRect(bottom_left[0], area.y, top_right[0]-bottom_left[0], area.h);
+                            canvas.fillRect(bottom_left[0], area.y, top_right[0]-bottom_left[0], area.h);
                         }
+                    }
+
+                    var lastStatus = 1;
+                    var lastX = null;
+                    var timeCoord = null;
+                    for( i=0; i<g.numRows(); i++ ) {
+                        nd = g.getValue(i, 3);
+                        timeCoord = g.getValue(i,0);
+                        if( lastStatus != 1) {
+                            highlight_region( lastX, timeCoord, nd.status );
+                        }
+                        if( nd.evtCode != 10 ) {
+                            highlight_event( timeCoord, nd.evtCode );
+                        }
+                        lastStatus = nd.status;
+                        lastX = timeCoord;
                     }
                 }                    
             }
         );
     }
 
+    $('.time-pick').click(function(){
+        console.log('picked!');
+    });
+
     $(document).ready(function () {
             // load data 
             var dataList = DataList.create();
             var data = '';
-            $.get('../data/index20160726.txt', function(txt){
+            $.get('../data/index20160812.txt', function(txt){
                 dataList.load(txt);
                 data = dataList.prepareData('3hour');
                 createGraph(data);
             })
+
+            setTimeout( function(){
+
+            }, 60000 );
         }
 );
 </script>
@@ -179,13 +227,13 @@
         </div>
         <div class="image-container">
         	<div class="images">
-            	<img src="images/img-1.jpg">
-                <img src="images/img-1.jpg">
-                <img src="images/img-1.jpg">
-                <img src="images/img-1.jpg">
+            	<img id="cam-1" src="images/img-1.jpg">
+                <img id="cam-2" src="images/img-1.jpg">
+                <img id="cam-3" src="images/img-1.jpg">
+                <img id="cam-4" src="images/img-1.jpg">
             </div>
             <div class="scan-image">
-            	<img src="images/scan-img.jpg">
+            	<img id="scanpic" src="images/scan-img.jpg">
             </div>
             <div class="clear">
             </div>
