@@ -50,7 +50,8 @@
                 },
                 ylabel:'重量',
                 y2label:'体积', 
-                strokeWidth: 1,
+				colors: ["#07abce","#d8b5b5"],
+                strokeWidth: 2,
                 drawGrid: false,
                 visibility:[true,true,false ],
                 axisLineColor: "rgba(255,255,255,0.7)",
@@ -77,8 +78,8 @@
                 underlayCallback: function(canvas, area, g) {
                     function highlight_event(x_start, eventType) {
                         var canvas_left_x = g.toDomXCoord(x_start);
-                        if(eventType==101) canvas.strokeStyle='#FF5555';
-                        else if(eventType==102) canvas.strokeStyle='#FFFF55';
+                        if(eventType==101) canvas.strokeStyle='#941b42';
+                        else if(eventType==102) canvas.strokeStyle='#95812f';
                         canvas.lineWidth = 1;
                         canvas.beginPath();
                         canvas.moveTo(canvas_left_x, area.y);
@@ -90,8 +91,7 @@
                         var bottom_left = g.toDomCoords(x_start);
                         var top_right = g.toDomCoords(x_end );
                         if( status == 0 ) {
-                            canvas.fillStyle = 'rgba(200,200,200,1)';
-                            canvas.strokeStyle = '#c8c8c8';
+                            canvas.fillStyle = 'rgba(255,255,255,0.5)';
                             canvas.strokeRect(bottom_left[0], area.y, top_right[0]-bottom_left[0], area.h);
                             canvas.fillRect(bottom_left[0], area.y, top_right[0]-bottom_left[0], area.h);
                         }
@@ -184,10 +184,10 @@
     仓位
     </div>
     <div class="menu">
-    <a href="overall.html">全景</a>
+    	<a href="overall.html">全景</a>
     </div>
     <div class="menu">
-    <span style="text-decoration: underline">仓库</span>：佛山铁峰仓
+    	<span style="text-decoration: underline">仓库</span>：佛山铁峰仓
     </div>
     <div class="clear">
     </div>
@@ -263,13 +263,13 @@
         </div>
         <div class="image-container">
         	<div class="images">
-            	<img id="cam-1" src="images/img-1.jpg">
-                <img id="cam-2" src="images/img-1.jpg">
-                <img id="cam-3" src="images/img-1.jpg">
-                <img id="cam-4" src="images/img-1.jpg">
+            	<img id="cam-1">
+                <img id="cam-2">
+                <img id="cam-3">
+                <img id="cam-4">
             </div>
             <div class="scan-image">
-            	<img id="scanpic" src="images/scan-img.jpg">
+            	<img id="scanpic">
             </div>
             <div class="clear">
             </div>
