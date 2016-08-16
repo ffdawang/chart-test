@@ -141,7 +141,7 @@
     function prepareData(dataList) {
         var span = $('button.time-selected').attr('id');
         var now = new Date();
-        var h = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), now.getHours()+1, 0, 0);
+        var h = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), now.getHours(), 0, 0);
         var d = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), 0,0,0);
         var data = [];
         if( span == 'oneday') {
@@ -149,7 +149,7 @@
         } else if( span == 'tendays') {
             data = dataList.prepareData(d.addDays(-9), now);
         } else {
-            data = dataList.prepareData(d.addHours(-2), now);
+            data = dataList.prepareData(h.addHours(-2), now);
         }
         return data;
     }
