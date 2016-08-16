@@ -106,10 +106,10 @@
                         if( lastStatus != 1) {
                             highlight_region( lastX, timeCoord, nd.status );
                         }
-                        if( nd.evtCode != 10 ) {
+                        if( nd && nd.evtCode != 10 ) {
                             highlight_event( timeCoord, nd.evtCode );
                         }
-                        lastStatus = nd.status;
+                        if( nd ) lastStatus = nd.status;
                         lastX = timeCoord;
                     }
                 }                    
@@ -117,24 +117,60 @@
         );
     }
 
-    $('.time-pick').click(function(){
-        console.log('picked!');
-    });
+
+    function loadData(dataList, day) {
+        var now = new Date();
+        var d = now.addDays(day);
+        var s = (d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate());
+        $.ajax({
+            type:'GET',
+            url:'http://d.wsncm.com/311/5/index' + s + '.txt',
+            error:function(xhr, statusText){},
+            success:function(txt){
+                dataList.load(txt);
+            }
+        }).always(function(){
+            if( day+1 > 0 ) {
+                createGraph(prepareData(dataList)); 
+                return;
+            }
+            loadData(dataList, day+1);    
+        });
+    }
+
+    function prepareData(dataList) {
+        var span = $('button.time-selected').attr('id');
+        var now = new Date();
+        var h = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), now.getHours()+1, 0, 0);
+        var d = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), 0,0,0);
+        var data = [];
+        if( span == 'oneday') {
+            data = dataList.prepareData(d, now); 
+        } else if( span == 'tendays') {
+            data = dataList.prepareData(d.addDays(-9), now);
+        } else {
+            data = dataList.prepareData(d.addHours(-2), now);
+        }
+        return data;
+    }
 
     $(document).ready(function () {
-            // load data 
-            var dataList = DataList.create();
-            var data = '';
-            $.get('../data/index20160812.txt', function(txt){
-                dataList.load(txt);
-                data = dataList.prepareData('3hour');
-                createGraph(data);
-            })
+        // load data 
+        var dataList = DataList.create();
+        loadData(dataList, -9);
+        $('button.time-pick').on('click', function(e){
+            o = $(this);
+            if( o.hasClass('time-selected')) return;
+            $('button.time-selected').removeClass('time-selected');
+            o.addClass('time-selected');
+            g_graph.updateOptions({'file':prepareData(dataList)});
+            console.log(o.attr('id'));
+        });
 
-            setTimeout( function(){
-
-            }, 60000 );
-        }
+        // prepare data for graph
+        setTimeout( function(){
+        }, 60000 );
+    }
 );
 </script>
 </head>
@@ -212,7 +248,7 @@
             </div>
             <div class="controller">
             	<div class="time-choose">
-                <button class="time-pick">10天</button> <button class="time-pick time-selected">1天</button> <button class="time-pick">3小时</button>
+                <button class="time-pick time-selected" id="tendays">10天</button> <button class="time-pick " id="oneday">1天</button> <button class="time-pick" id="threehours">3小时</button>
                 </div>
                 <div class="wh-info">
                     <span>

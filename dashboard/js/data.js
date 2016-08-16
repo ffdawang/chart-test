@@ -1,7 +1,11 @@
-// Date.prototype.addHours = function(h) {
-//     this.setTime(this.getTime() + (h*60*60*1000));
-//     return this;
-// };
+Date.prototype.addHours = function(h) {
+    return new Date(this.getTime() + (h*60*60*1000));
+};
+
+Date.prototype.addDays = function(d) {
+    return new Date(this.getTime() + (d*60*60*1000*24));
+}
+
 
 // Date.prototype.fmtTime = function() {
 //     mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
@@ -34,8 +38,8 @@ var node = {
         if( !nd ) {
             nd = this.create();
             nd.time = tt;
-            nd.weight = Number(ar[1]);
-            nd.volume = Number(ar[3]);
+            nd.weight = parseFloat(-Number(ar[1]).toFixed(3));
+            nd.volume = parseFloat(Number(ar[3]).toFixed(3));
             nd.jsonurl = ar[0];
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
             nd.evtCode = Number(ar[6]);
@@ -61,8 +65,10 @@ var node = {
                 // info changed
                 snd = this.create();
                 snd.time = tt;
-                snd.weight = Number(ar[1]);
-                snd.volume = Number(ar[3]);
+            snd.weight = parseFloat(-Number(ar[1]).toFixed(3));
+            snd.volume = parseFloat(Number(ar[3]).toFixed(3));
+                //snd.weight = -Number(ar[1]);
+                //snd.volume = Number(ar[3]);
                 snd.jsonurl = ar[0];
                 snd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
                 snd.evtCode = Number(ar[6]);
@@ -83,7 +89,7 @@ var DataList = {
             tail:null,
             load:function(data){
                 var lines = data.trim().split('\n');
-                var nd = null;
+                var nd = this.tail;
                 for( i in lines ) {
                     ss = lines[i].trim().split(',');
                     if( ss.length ) {
@@ -94,19 +100,24 @@ var DataList = {
                 this.tail = nd;
             },
             clear:function(){},
-            prepareData:function(span) {
+            prepareData:function(start, end) {
                 var data = [];
-                if( !this.head ) {
-                    return data;
-                }
-                if( span == '1day') {} 
-                else if( span == '10day') {}
-                else if( span == '3hour') {
-                    var nd = this.head;
-                    while( nd != null ) {
-                        data.push([nd.time, nd.weight, nd.volume, nd]);
-                        nd = nd.next;
+                if( !this.head ) return data;
+                var nd = this.head;
+                var last = null;
+                while( nd != null ) {
+                    if( end != null && nd.time > end ) {
+                        if( last != null ) 
+                            data.push([end, last.weight, last.volume, last]);
+                        break;
                     }
+                    if( nd.time >= start ) {
+                        if( nd.time != start && data.length == 0 && last != null ) 
+                            data.push([start, last.weight, last.volume, null]);
+                        data.push([nd.time, nd.weight, nd.volume, nd]);
+                    }
+                    nd = nd.next;
+                    last = nd;
                 }
                 return data;
             }
