@@ -7,15 +7,15 @@ Date.prototype.addDays = function(d) {
 }
 
 
-// Date.prototype.fmtTime = function() {
-//     mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
-//     da = this.getDate() >= 10 ? this.getDate() : '0' + this.getDate();
-//     hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
-//     mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
-//     se = this.getSeconds() >= 10 ? this.getSeconds() : '0' + this.getSeconds();
-//     return (1900+this.getYear()) + '/' + mon + '/' + da + ' ' + 
-//         hr + ':' + mi + ':' + se ;
-// }
+Date.prototype.fmtTime = function() {
+    mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
+    da = this.getDate() >= 10 ? this.getDate() : '0' + this.getDate();
+    hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
+    mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
+    se = this.getSeconds() >= 10 ? this.getSeconds() : '0' + this.getSeconds();
+    return (1900+this.getYear()) + '/' + mon + '/' + da + ' ' + 
+        hr + ':' + mi + ':' + se ;
+}
 
 var node = {
     create:function() {
@@ -120,6 +120,10 @@ var DataList = {
                     last = nd;
                 }
                 return data;
+            },
+            getUpdateTime: function() {
+                if( this.tail != null ) return this.tail.time.fmtTime(); 
+                return null;
             }
         };
         return instance;

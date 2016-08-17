@@ -56,8 +56,6 @@
                 drawGrid: false,
                 visibility:[true,true,false ],
                 axisLineColor: "rgba(255,255,255,0.7)",
-                displayWeight: dw,
-                displayVolume: dv,
                 valueFormatter:function(num, opt, name, g, row, col) {
                     if( name == 'Y1' ) dw.text(num);
                     else if( name == 'Y2') dv.text(num);
@@ -130,6 +128,8 @@
                 createGraph(prepareData(dataList, tmobj)); 
                 var span = $('button.time-selected').attr('id');
                 updateArrowBtn(dataList, tmobj, span);
+                var ut = dataList.getUpdateTime();
+                if( ut != null ) $('#display_updatetime').text(ut);
                 return;
             }
             loadData(dataList, day+1,tmobj);    
