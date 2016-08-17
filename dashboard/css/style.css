@@ -228,12 +228,16 @@ img {
     margin-left: 4px;
 }
 
-#cangwei {
+.charts {
 	background: #33365c; 
 	background: -moz-linear-gradient(top, #33365c 0%, #776180 100%); 
 	background: -webkit-linear-gradient(top, #33365c 0%,#776180 100%); 
 	background: linear-gradient(to bottom, #33365c 0%,#776180 100%); 
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#33365c', endColorstr='#776180',GradientType=0 ); 
+}
+
+#cangwei {
+	float: left;
 	color: #ffffff;
 }
 
@@ -243,4 +247,22 @@ img {
 
 .dygraph-legend {
 	display: none;
+}
+
+.left-arrow, .right-arrow {
+	height: 45vh;
+	width: 30px;
+	background: rgba(0,0,0,0.3);
+	box-shadow: none;
+	border: 0;
+	box-shadow: none;
+	float: left;
+	padding: 0;
+	margin:0;
+	color: rgba(255,255,255,0.6);
+	font-size: 18px;
+}
+
+.left-arrow:hover, .right-arrow:hover {
+	color: rgba(255,255,255,1);
 }
