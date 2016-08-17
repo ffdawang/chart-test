@@ -62,8 +62,6 @@
                     if( name == 'Y1' ) dw.text(num);
                     else if( name == 'Y2') dv.text(num);
                 },
-                highlighCallback:function(event, x, points, row, name ) {
-                },
                 clickCallback: function(e, x, point) {
                     for( i=0; i<g_graph.numRows(); i++) {
                         if( g_graph.getValue(i,0) == x){
@@ -72,9 +70,6 @@
                             break;
                         }
                     }
-                },
-                pointClickCallback:function(e, point) {
-                    console.log('pointClickCallback: '+point);
                 },
                 underlayCallback: function(canvas, area, g) {
                     function highlight_event(x_start, eventType) {
@@ -119,7 +114,7 @@
     }
 
 
-    function loadData(dataList, day) {
+    function loadData(dataList, day, tmobj) {
         var now = new Date();
         var d = now.addDays(day);
         var s = (d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate());
@@ -132,45 +127,107 @@
             }
         }).always(function(){
             if( day+1 > 0 ) {
-                createGraph(prepareData(dataList)); 
+                createGraph(prepareData(dataList, tmobj)); 
+                var span = $('button.time-selected').attr('id');
+                updateArrowBtn(dataList, tmobj, span);
                 return;
             }
-            loadData(dataList, day+1);    
+            loadData(dataList, day+1,tmobj);    
         });
     }
 
-    function prepareData(dataList) {
+    function updateArrowBtn(dataList, tmobj, span) {
+        var left = $('button.left-arrow');
+        var right = $('button.right-arrow');
+        if( span == 'oneday') {
+            var p = new Date(tmobj.t.getTime() - (60*60*1000*24));
+            var n = new Date(tmobj.t.getTime() + (60*60*1000*24));
+            if( dataList.head.time >= p ) left.hide();
+            else left.show();
+            if( dataList.tail.time < tmobj.t ) right.hide();
+            else right.show();
+
+        } else if(span == 'threehours') {
+            var p = new Date(tmobj.h.getTime() - (60*60*1000*3));
+            var n = new Date(tmobj.h.getTime() + (60*60*1000*3));
+            if( dataList.head.time >= p ) left.hide();
+            else left.show();
+            if( dataList.tail.time < tmobj.h ) right.hide();
+            else right.show();
+        } else {
+            left.hide();
+            right.hide();
+        }
+    }
+
+    function adjustBaseTime( dataList, tmobj, direction ) {
         var span = $('button.time-selected').attr('id');
-        var now = new Date();
-        var h = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), now.getHours(), 0, 0);
-        var d = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), 0,0,0);
+        if( span == 'oneday' ) {
+            var p = new Date(tmobj.t.getTime() - (60*60*1000*24));
+            var n = new Date(tmobj.t.getTime() + (60*60*1000*24));
+            if( !direction && dataList.head.time < p) tmobj.t = p;
+            else if( direction && dataList.tail.time > p ) tmobj.t = n;
+        }  else if( span == 'threehours') {
+            var p = new Date(tmobj.h.getTime() - (60*60*1000*3));
+            var n = new Date(tmobj.h.getTime() + (60*60*1000*3));
+            if( !direction && dataList.head.time < p ) tmobj.h = p;
+            else if( direction && dataList.tail.time > p ) tmobj.h = n;
+        } 
+        updateArrowBtn(dataList, tmobj, span);
+    }
+
+    function initalTime(tmobj) {
+        t = new Date();
+        tmobj.t = new Date(t.getYear()+1900, t.getMonth(), t.getDate(), 23, 59, 59);
+        tmobj.h = new Date(t.getYear()+1900, t.getMonth(), t.getDate(), t.getHours(), 59, 59);
+    }
+
+    function prepareData(dataList, tmobj ) {
+        var span = $('button.time-selected').attr('id');
+        if( tmobj.t == null ) initalTime(tmobj);
+        var h = new Date(tmobj.t.getYear()+1900, tmobj.t.getMonth(), tmobj.t.getDate(), tmobj.t.getHours(), 0, 0);
+        var d = new Date(tmobj.t.getYear()+1900, tmobj.t.getMonth(), tmobj.t.getDate(), 0,0,0);
         var data = [];
         if( span == 'oneday') {
-            data = dataList.prepareData(d, now); 
+            data = dataList.prepareData(d, tmobj.t); 
         } else if( span == 'tendays') {
-            data = dataList.prepareData(d.addDays(-9), now);
+            data = dataList.prepareData(d.addDays(-9), tmobj.t);
         } else {
-            data = dataList.prepareData(h.addHours(-2), now);
+            data = dataList.prepareData(tmobj.h.addHours(-3), tmobj.h);
         }
         return data;
     }
 
     $(document).ready(function () {
+        //initial time
+        var timeObj = {t:null, h:null};
+        initalTime(timeObj);
         // load data 
         var dataList = DataList.create();
-        loadData(dataList, -9);
+        loadData(dataList, -9, timeObj);
         $('button.time-pick').on('click', function(e){
-            o = $(this);
+            var o = $(this);
             if( o.hasClass('time-selected')) return;
+            initalTime(timeObj);
             $('button.time-selected').removeClass('time-selected');
             o.addClass('time-selected');
-            g_graph.updateOptions({'file':prepareData(dataList)});
-            console.log(o.attr('id'));
+            g_graph.updateOptions({'file':prepareData(dataList, timeObj)});
+            updateArrowBtn(dataList, timeObj, o.attr('id'));
         });
 
-        // prepare data for graph
-        setTimeout( function(){
-        }, 60000 );
+        $('button.left-arrow').on('click', function(e){
+            adjustBaseTime(dataList, timeObj, false);
+            g_graph.updateOptions({'file':prepareData(dataList, timeObj)});
+            var o = $('button.time-selected');
+            updateArrowBtn(dataList, timeObj, o.attr('id'));
+        });
+
+        $('button.right-arrow').on('click', function(e){
+            adjustBaseTime(dataList, timeObj, true );
+            g_graph.updateOptions({'file':prepareData(dataList, timeObj)});
+            var o = $('button.time-selected');
+            updateArrowBtn(dataList, timeObj, o.attr('id'));
+        });
     }
 );
 </script>
