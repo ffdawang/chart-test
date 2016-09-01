@@ -112,13 +112,13 @@
     }
 
 
-    function loadData(dataList, day, tmobj) {
+    function loadData(dataList, day, tmobj, storageId) {
         var now = new Date();
         var d = now.addDays(day);
         var s = (d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate());
         $.ajax({
             type:'GET',
-            url:'http://d.wsncm.com/311/5/index' + s + '.txt',
+            url:'http://d.wsncm.com/311/' + storageId + '/index' + s + '.txt',
             error:function(xhr, statusText){},
             success:function(txt){
                 dataList.load(txt);
@@ -132,7 +132,7 @@
                 if( ut != null ) $('#display_updatetime').text(ut);
                 return;
             }
-            loadData(dataList, day+1,tmobj);    
+            loadData(dataList, day+1,tmobj, storageId);    
         });
     }
 
@@ -198,13 +198,24 @@
         return data;
     }
 
+    function resetAll() {
+        var dw = $('#display_weight');
+        dw.text('--');
+        var dv = $('#display_volume');        
+        dv.text('--');
+        for( i=1; i<=4; i++ ) 
+            $('#cam-'+i).attr('src','');
+        $('#scanpic').attr('src', '');        
+    }
+
     $(document).ready(function () {
         //initial time
         var timeObj = {t:null, h:null};
         initalTime(timeObj);
         // load data 
+        $('button.number:first').addClass('number-active');
         var dataList = DataList.create();
-        loadData(dataList, -9, timeObj);
+        loadData(dataList, -9, timeObj, 1);
         $('button.time-pick').on('click', function(e){
             var o = $(this);
             if( o.hasClass('time-selected')) return;
@@ -228,6 +239,18 @@
             var o = $('button.time-selected');
             updateArrowBtn(dataList, timeObj, o.attr('id'));
         });
+
+        $('button.number').on('click', function(e) {
+            var o = $(this);
+            if( o.hasClass('number-active')) return;
+            resetAll();
+            $('button.number-active').removeClass('number-active');
+            o.addClass('number-active');
+            dataList.clear();
+            timeObj = {t:null, h:null};
+            initalTime(timeObj);
+            loadData(dataList, -9, timeObj, Number(o.text()));
+        })
     }
 );
 </script>
@@ -265,7 +288,7 @@
         <button class="number">
         4
         </button>
-        <button class="number number-active">
+        <button class="number">
         5
         </button>
         <button class="number">

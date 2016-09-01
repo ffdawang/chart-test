@@ -99,7 +99,10 @@ var DataList = {
                 }
                 this.tail = nd;
             },
-            clear:function(){},
+            clear:function(){
+                this.head = null;
+                this.tail = null; 
+            },
             prepareData:function(start, end) {
                 var data = [];
                 if( !this.head ) return data;
