@@ -5,10 +5,12 @@
 <title>仓位历史管控台 - 仓位</title>
 <link href="css/style.css" rel="stylesheet" type="text/css">
 <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href="css/jquery.mloading.css" rel="stylesheet" type="text/css">
 <script src="js/jquery-1.11.1.min.js"></script>
 <script src="js/dygraph-combined.js"></script>
 <script src="js/synchronizer.js"></script>
 <script src="js/data.js"></script>
+<script src="js/jquery.mloading.js"></script>
 
 <script>
     var updateImages = function(nd) {
@@ -130,6 +132,7 @@
                 updateArrowBtn(dataList, tmobj, span);
                 var ut = dataList.getUpdateTime();
                 if( ut != null ) $('#display_updatetime').text(ut);
+                $('body').mLoading('hide');
                 return;
             }
             loadData(dataList, day+1,tmobj, storageId);    
@@ -208,14 +211,20 @@
         $('#scanpic').attr('src', '');        
     }
 
-    $(document).ready(function () {
-        //initial time
-        var timeObj = {t:null, h:null};
+    function load(dataList, timeObj, sid) {
+        $('body').mLoading();
+        resetAll();
+        dataList.clear();
         initalTime(timeObj);
+        loadData(dataList, -9, timeObj, sid);
+    }
+
+    $(document).ready(function () {
+        var timeObj = {t:null, h:null};
         // load data 
         $('button.number:first').addClass('number-active');
         var dataList = DataList.create();
-        loadData(dataList, -9, timeObj, 1);
+        load(dataList, timeObj, 1);
         $('button.time-pick').on('click', function(e){
             var o = $(this);
             if( o.hasClass('time-selected')) return;
@@ -243,13 +252,9 @@
         $('button.number').on('click', function(e) {
             var o = $(this);
             if( o.hasClass('number-active')) return;
-            resetAll();
             $('button.number-active').removeClass('number-active');
             o.addClass('number-active');
-            dataList.clear();
-            timeObj = {t:null, h:null};
-            initalTime(timeObj);
-            loadData(dataList, -9, timeObj, Number(o.text()));
+            load(dataList, timeObj, Number(o.text()));
         })
     }
 );
