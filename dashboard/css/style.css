@@ -266,3 +266,29 @@ img {
 .left-arrow:hover, .right-arrow:hover {
 	color: rgba(255,255,255,1);
 }
+
+.leftarrow, .rightarrow {
+	float: left;
+	width: 25px;
+	background: #000000;
+	color: #ffffff;
+	border: 0;
+	height: 60px;
+	line-height: 60px;
+}
+
+.line-chart {
+	width: calc(100% - 50px);
+	float:left;
+	height: 60px;
+}
+
+.timeline {
+	height: 60px;
+	background: #33365c;
+    background: -moz-linear-gradient(left, #33365c 0%, #7c6482 100%);
+    background: -webkit-linear-gradient(left, #33365c 0%,#7c6482 100%);
+    background: linear-gradient(to right, #33365c 0%,#7c6482 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#33365c', endColorstr='#7c6482',GradientType=1 );
+}
+

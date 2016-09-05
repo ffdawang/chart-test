@@ -5,9 +5,11 @@
 <title>仓位历史管控台 - 全景</title>
 
 <link href="css/style.css" rel="stylesheet" type="text/css">
+<link href="css/font-awesome.css" rel="stylesheet" type="text/css">
 <script src="js/jquery-1.11.1.min.js"></script>
 <script src="js/data.js"></script>
 <script src="js/jquery.mloading.js"></script>
+<script src="https://chartsapi.gdgdocs.org/jsapi"></script>
 </head>
 
 <body>
@@ -32,7 +34,61 @@
 </div>
     
 <div class="timeline">
-    <img src="images/timeline.jpg">
+    <button class="leftarrow">
+    	<i class="fa fa-caret-left"></i>
+    </button>
+    <div class="line-chart" id="chart_div">
+    </div>
+    <script>
+	google.load('visualization','1.0', {packages: ['corechart', 'line']});
+google.setOnLoadCallback(drawBasic);
+
+function drawBasic() {
+
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Dogs');
+
+      data.addRows([
+        [0, 0],   [1, 0],  [2, 0],  [3, 0],  [4, 0],  [5, 0],
+        [6, 0],  [7, 0],  [8, 0],  [9, 0],  [10, 0], [11, 0],
+        [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0],
+        [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0],
+        [24, 0]
+      ]);
+
+      var options = {
+        hAxis: {
+          gridlines: {
+        			color: 'transparent'
+    			},
+          baselineColor: 'transparent',
+          textStyle:{color: '#d2d0d9'}
+        },
+        vAxis: {
+          gridlines: {
+        			color: 'transparent'
+    			},
+          baselineColor: 'transparent',
+          textPosition: 'none'
+        },
+        legend: {
+        	position: 'none'
+        },
+        colors: ['#d2d0d9']
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+      chart.draw(data, options);
+    }
+	</script>
+
+    <button class="rightarrow">
+    	<i class="fa fa-caret-right"></i>
+    </button>
+    <div class="clear">
+    </div>
 </div>
     
 <div class="timeline-line">
