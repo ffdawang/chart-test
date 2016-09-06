@@ -16,6 +16,17 @@ img {
 	max-height: 100%;
 }
 
+.line {
+  visibility: hidden;
+  background-color: red;
+  position: relative;
+  pointer-events: none;  
+}
+.xline {
+  height: 100%;
+  width: 1px;
+}
+
 .banner {
 	background: #0c1719;
 	color: #ffffff;
@@ -278,7 +289,7 @@ img {
 }
 
 .line-chart {
-	width: calc(100% - 50px);
+	width: 100%; /*calc(100% - 50px);*/
 	float:left;
 	height: 60px;
 }

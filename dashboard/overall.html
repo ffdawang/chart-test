@@ -7,10 +7,67 @@
 <link href="css/style.css" rel="stylesheet" type="text/css">
 <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
 <script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/dygraph-combined.js"></script>
 <script src="js/data.js"></script>
 <script src="js/jquery.mloading.js"></script>
-<script src="https://chartsapi.gdgdocs.org/jsapi"></script>
 </head>
+
+<script>
+    var numOfStorage = 15;
+
+    var g_graph = null;
+    
+    function createGraph(data) {
+        var graph_div = document.getElementById('chart_div');
+        var xline = document.createElement('div');
+        xline.className = 'line xline';
+        xline.style.top = '0px';
+        g = new Dygraph(
+            graph_div,
+            data, 
+            {
+                drawGrid:false,
+                axes: {
+                    y: {
+                        drawAxis: false,
+                        drawGrid: false
+                    },
+                    x: {
+                        axisLabelFormatter: function(d, gran) {
+                            return Dygraph.zeropad(d.getHours()) + ':' + Dygraph.zeropad(d.getMinutes());
+                        }
+                    }
+                },
+                pixelsPerLabel:50,
+                xAxisHeight:0,
+                xRangePad:40,
+                highlightCallback: function(e, x, pts) {
+                    xline.style.left = pts[0].canvasx + 'px';
+                    xline.style.visibility = 'visible';
+                },
+                unhighlightCallback: function(e) {
+                    xline.style.visibility = 'hidden';
+                }
+            } 
+        );
+        $(graph_div).children('div')[0].appendChild(xline);
+        return g;
+    }
+
+    function loadData() {
+
+    }
+
+    $(document).ready(function(){
+        if( g_graph ) g_graph.destroy();
+        data = [];
+        now = new Date;
+        for( i=0; i<=24; i++ )
+            data.push([new Date(now.getYear()+1900, now.getMonth(), now.getDate(),
+                    i, 0, 0),0])
+        g_graph = createGraph(data); 
+    });
+</script>
 
 <body>
 <div class="banner">
@@ -34,60 +91,7 @@
 </div>
     
 <div class="timeline">
-    <button class="leftarrow">
-    	<i class="fa fa-caret-left"></i>
-    </button>
     <div class="line-chart" id="chart_div">
-    </div>
-    <script>
-	google.load('visualization','1.0', {packages: ['corechart', 'line']});
-google.setOnLoadCallback(drawBasic);
-
-function drawBasic() {
-
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'X');
-      data.addColumn('number', 'Dogs');
-
-      data.addRows([
-        [0, 0],   [1, 0],  [2, 0],  [3, 0],  [4, 0],  [5, 0],
-        [6, 0],  [7, 0],  [8, 0],  [9, 0],  [10, 0], [11, 0],
-        [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0],
-        [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0],
-        [24, 0]
-      ]);
-
-      var options = {
-        hAxis: {
-          gridlines: {
-        			color: 'transparent'
-    			},
-          baselineColor: 'transparent',
-          textStyle:{color: '#d2d0d9'}
-        },
-        vAxis: {
-          gridlines: {
-        			color: 'transparent'
-    			},
-          baselineColor: 'transparent',
-          textPosition: 'none'
-        },
-        legend: {
-        	position: 'none'
-        },
-        colors: ['#d2d0d9']
-      };
-
-      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-
-      chart.draw(data, options);
-    }
-	</script>
-
-    <button class="rightarrow">
-    	<i class="fa fa-caret-right"></i>
-    </button>
-    <div class="clear">
     </div>
 </div>
     
