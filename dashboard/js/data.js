@@ -6,6 +6,10 @@ Date.prototype.addDays = function(d) {
     return new Date(this.getTime() + (d*60*60*1000*24));
 }
 
+Date.prototype.addMins = function(m) {
+    return new Date(this.getTime() + (m*60*1000) );
+}
+
 
 Date.prototype.fmtTime = function() {
     mon = this.getMonth()+1 >= 10 ? this.getMonth()+1 : '0' + (this.getMonth()+1);
@@ -27,6 +31,7 @@ var node = {
             imgUpdate:0,
             evtCode:0,
             status:0,
+            text:null,
             next:null
         };
     },
@@ -38,12 +43,13 @@ var node = {
         if( !nd ) {
             nd = this.create();
             nd.time = tt;
-            nd.weight = parseFloat(-Number(ar[1]).toFixed(3));
+            nd.weight = parseFloat(Number(ar[1]).toFixed(3));
             nd.volume = parseFloat(Number(ar[3]).toFixed(3));
             nd.jsonurl = ar[0];
             nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
             nd.evtCode = Number(ar[6]);
             nd.status - Number(ar[7]);
+            nd.text = ar[8];
         } else {
             // cross hour boundary or not?
             while( nd.time < tt  && tt.getHours() != nd.time.getHours() ) {
@@ -56,6 +62,7 @@ var node = {
                 snd.imgUpdate = nd.imgUpdate;
                 snd.evtCode = nd.evtCode;
                 snd.status = nd.status;
+                snd.text = nd.text;
                 nd.next = snd;
                 nd = snd;
             }
@@ -65,14 +72,15 @@ var node = {
                 // info changed
                 snd = this.create();
                 snd.time = tt;
-            snd.weight = parseFloat(-Number(ar[1]).toFixed(3));
-            snd.volume = parseFloat(Number(ar[3]).toFixed(3));
+                snd.weight = parseFloat(Number(ar[1]).toFixed(3));
+                snd.volume = parseFloat(Number(ar[3]).toFixed(3));
                 //snd.weight = -Number(ar[1]);
                 //snd.volume = Number(ar[3]);
                 snd.jsonurl = ar[0];
                 snd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
                 snd.evtCode = Number(ar[6]);
                 snd.status = Number(ar[7]);
+                snd.text = ar[8];
                 nd.next = snd;
                 nd = snd;
             }
@@ -119,10 +127,25 @@ var DataList = {
                             data.push([start, last.weight, last.volume, null]);
                         data.push([nd.time, nd.weight, nd.volume, nd]);
                     }
-                    nd = nd.next;
                     last = nd;
+                    nd = nd.next;
                 }
                 return data;
+            },
+            since: function(start) {
+                if( !this.head ) return null;
+                var nd = this.head;
+                var last = null;
+                while( nd != null ) {
+                    if( nd.time == start ) return nd;
+                    else if( nd.time > start ) {
+                        if( last ) return last;
+                        else return nd;
+                    }
+                    last = nd;
+                    nd = nd.next;
+                } 
+                return null;
             },
             getUpdateTime: function() {
                 if( this.tail != null ) return this.tail.time.fmtTime(); 
