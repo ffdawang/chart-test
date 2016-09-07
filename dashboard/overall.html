@@ -179,7 +179,7 @@
         for( i=0;i<numOfStorage;i++) {
             o = btns.eq(i);
             o.on('click', {value:i, obj:o}, function(e){
-                e.data.obj.next().toggle();
+                e.data.obj.next().toggle(300);
             });
         }
     }
