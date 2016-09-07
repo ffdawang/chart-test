@@ -118,7 +118,7 @@
                     if( i >= 4 ) break;
                     imgs.find('img').eq(i).attr('src', data.shape.videoPic[i].url);
                 }
-                scanimg.find('img').eq(0).attr('src', data.shape.videoPic[0].url);
+                scanimg.find('img').eq(0).attr('src', data.shape.shapePic[0].url);
             }
         });
     }
@@ -188,7 +188,7 @@
         for( i=0;i<numOfStorage;i++) {
             o = btns.eq(i);
             o.on('click', {value:i, obj:o}, function(e){
-                e.data.obj.next().toggle();
+                e.data.obj.next().toggle(300);
             });
         }
     }
