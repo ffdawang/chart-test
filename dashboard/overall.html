@@ -19,6 +19,13 @@
 
     var g_data = new Array(numOfStorage);
 
+
+    function clearPicture(o) {
+        o.find('img').each(function(i, item) {
+            $(item).attr('src','');
+        });
+    }
+
     function createGraph(data) {
         var graph_div = document.getElementById('chart_div');
         var xline = document.createElement('div');
@@ -104,16 +111,18 @@
             success:function(data) {
                 var len = data.shape.videoPic.length;
                 imgs = this.obj.next().find('div.images-b').eq(0);
-                imgs.empty();
+                clearPicture(imgs)
                 scanimg = imgs.next();
-                scanimg.children().remove();
+                clearPicture(scanimg)
                 for(i=0;i<len;i++) {
-                    imgs.append($('<img src="' + data.shape.videoPic[i].url + '">'));
+                    if( i >= 4 ) break;
+                    imgs.find('img').eq(i).attr('src', data.shape.videoPic[i].url);
                 }
-                scanimg.append($('<img src="' + data.shape.shapePic[0].url + '">'));               
+                scanimg.find('img').eq(0).attr('src', data.shape.videoPic[0].url);
             }
         });
     }
+
 
     function loadData(dl, data) {
         var d = new Date();
@@ -171,7 +180,7 @@
     function createDOMNodes() {
         o = $('div.main').eq(0);
         for( i=0; i<numOfStorage; i++ ) {
-            item = $('<div class="wh-list"> <button class="wh-sum"> <div class="wh-no"></div> <div class="wh-status"><span class="wh-normal"></span></div> <div class="wh-detail"></div> </button> <div class="wh-img" style="display:none"> <div class="images-b"> </div> <div class="scan-image-b"> </div> <div class="clear"> </div> </div> </div>');    
+            item = $('<div class="wh-list"> <button class="wh-sum"> <div class="wh-no"></div> <div class="wh-status"><span class="wh-normal"></span></div> <div class="wh-detail"></div> </button> <div class="wh-img" style="display:none"> <div class="images-b"><img src=""><img src=""><img src=""> <img src=""> </div> <div class="scan-image-b"> <img src=""> </div> <div class="clear"> </div> </div> </div>');    
             item.hide();
             o.append(item);
         }
