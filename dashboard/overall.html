@@ -6,6 +6,7 @@
 
 <link href="css/style.css" rel="stylesheet" type="text/css">
 <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
+<link href="css/jquery.mloading.css" rel="stylesheet" type="text/css">
 <script src="js/jquery-1.11.1.min.js"></script>
 <script src="js/dygraph-combined.js"></script>
 <script src="js/data.js"></script>
@@ -56,10 +57,12 @@
             } 
         );
         $(graph_div).children('div')[0].appendChild(xline);
+        $('body').mLoading('hide');
         return g;
     }
 
     function updateOnClick(t, data) {
+        $('body').mLoading();
         var flags = new Array(data.length);
         for( i=0; i<data.length; i++ ) {
             nd = data[i];
@@ -112,10 +115,17 @@
                 }
                 scanimg.append($('<img src="' + data.shape.shapePic[0].url + '">'));               
             }
+        }).always(function(){
+            flags[idx] = 1;
+            for( i=0; i<flags.length; i++ ) {
+                if( !flags[i] ) return;
+            }
+            $('body').mLoading('hide');
         });
     }
 
     function loadData(dl, data) {
+        $('body').mLoading();
         var d = new Date();
         var s =(d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate()); 
 
