@@ -11,8 +11,35 @@
 <script src="js/synchronizer.js"></script>
 <script src="js/data.js"></script>
 <script src="js/jquery.mloading.js"></script>
-
 <script>
+    var current_warhouse = -1;
+
+    var wh_list = null;
+
+    var addSpaces = function(n) {
+        o = $('.numbers:first');
+        o.children().remove();
+        for(i=0;i<n;i++) {
+            o.append($('<button class="number">' + (i+1) + '</button>'));
+        }
+    }
+
+    var loadWarehouseList = function() {
+        $.get('data/warehouse.json', function(data) {
+            wh_list = data.warehouses;
+            o = $('#wh-list');
+            for( i=0; i<data.warehouses.length; i++ ) {
+                o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+            }
+            o.val($('#wh-list option:first').val());
+            current_warehouse = $('#wh-list option:first').val();
+            for(i=0;i<wh_list.length;i++ )
+                if( wh_list[i].id == current_warehouse ) addSpaces(wh_list[i].numOfSpaces);
+            wrapup();
+        })
+    }
+
+
     var updateImages = function(nd) {
         if( !nd || !nd.jsonurl) return;
         $.get(nd.jsonurl, function(data){
@@ -120,7 +147,7 @@
         var s = (d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate());
         $.ajax({
             type:'GET',
-            url:'http://d.wsncm.com/311/' + storageId + '/index' + s + '.txt',
+            url:'http://d.wsncm.com/' + current_warehouse + '/' + storageId + '/index' + s + '.txt',
             error:function(xhr, statusText){},
             success:function(txt){
                 dataList.load(txt);
@@ -219,7 +246,7 @@
         loadData(dataList, -9, timeObj, sid);
     }
 
-    $(document).ready(function () {
+    function wrapup() {
         var timeObj = {t:null, h:null};
         // load data 
         $('button.number:first').addClass('number-active');
@@ -257,6 +284,17 @@
             load(dataList, timeObj, Number(o.text()));
         })
     }
+
+    $(document).ready(function () {
+        $('#wh-list').change(function(){
+            if( current_warehouse == this.value ) return;
+            current_warehouse = this.value;
+            for(i=0;i<wh_list.length;i++ )
+                if( wh_list[i].id == current_warehouse ) addSpaces(wh_list[i].numOfSpaces);
+            wrapup();
+        }); 
+        loadWarehouseList();
+    }
 );
 </script>
 </head>
@@ -273,7 +311,7 @@
     	<a href="overall.html">全景</a>
     </div>
     <div class="menu">
-    	<span style="text-decoration: underline">仓库</span>：佛山铁峰仓
+    	<span style="text-decoration: underline">仓库</span>：<select id="wh-list"></select>
     </div>
     <div class="clear">
     </div>
@@ -281,51 +319,6 @@
 
 <div class="main">
 	<div class="numbers">
-    	<button class="number">
-        1
-        </button>
-        <button class="number">
-        2
-        </button>
-        <button class="number">
-        3
-        </button>
-        <button class="number">
-        4
-        </button>
-        <button class="number">
-        5
-        </button>
-        <button class="number">
-        6
-        </button>
-        <button class="number">
-        7
-        </button>
-        <button class="number">
-        8
-        </button>
-        <button class="number">
-        9
-        </button>
-        <button class="number">
-        10
-        </button>
-        <button class="number">
-        11
-        </button>
-        <button class="number">
-        12
-        </button>
-        <button class="number">
-        13
-        </button>
-        <button class="number">
-        14
-        </button>
-        <button class="number">
-        15
-        </button>
     </div>
     <div class="content">
     	<div class="chart-container">

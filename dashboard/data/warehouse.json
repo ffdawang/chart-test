@@ -1,0 +1,14 @@
+{
+    "warehouses": [
+        {
+            "id": 36,
+            "name":"佛山铁丰库",
+            "numOfSpaces":16
+        },
+        {
+            "id":311,
+            "name":"无锡中储库",
+            "numOfSpaces":17
+        }
+    ]
+}
