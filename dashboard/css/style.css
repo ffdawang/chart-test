@@ -18,7 +18,7 @@ img {
 
 .line {
   visibility: hidden;
-  background-color: red;
+  background-color: #ffffff;
   position: relative;
   pointer-events: none;  
 }
@@ -301,5 +301,13 @@ img {
     background: -webkit-linear-gradient(left, #33365c 0%,#7c6482 100%);
     background: linear-gradient(to right, #33365c 0%,#7c6482 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#33365c', endColorstr='#7c6482',GradientType=1 );
+}
+
+.video-img, .shape-img, .shape-diff {
+	border: 1px solid #858585;
+}
+
+.video-img img, .shape-img img, .shape-diff img {
+	width:100%;
 }
 
