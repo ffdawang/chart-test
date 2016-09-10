@@ -19,9 +19,8 @@
     var addSpaces = function(n) {
         o = $('.numbers:first');
         o.children().remove();
-        var s = n.trim().split(',');
-        for(i=0;i<s.length;i++) {
-            o.append($('<button class="number">' + (Number(s[i].trim())+1) + '</button>'));
+        for(i=0;i<n.length;i++) {
+            o.append($('<button class="number">' + n[i] + '</button>'));
         }
     }
 

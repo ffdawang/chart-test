@@ -14,11 +14,29 @@
 </head>
 
 <script>
-    var numOfStorage = 15;
+    var numOfStorage = -1;
 
     var g_graph = null;
 
-    var g_data = new Array(numOfStorage);
+    var g_data = null;
+
+    var g_wh_list = null;
+
+    var current_warehouse = null;
+
+    function loadWareHouseList() {
+        $.get('data/warehouse.json', function(data) {
+            g_wh_list = data.warehouses;
+            o = $('#whlistx');
+            for( i=0; i<data.warehouses.length; i++ ) {
+                o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+            }
+            o.val($('#whlistx option:first').val());
+            current_warehouse = data.warehouses[0]; //$('#whlists option:first').val();
+            numOfStorage = data.warehouses[0].spaces.length;
+            wrapup();
+        })        
+    }
 
     function createGraph(data) {
         var graph_div = document.getElementById('chart_div');
@@ -90,7 +108,7 @@
         if( $('div.wh-list').eq(idx).is(':hidden') )
             $('div.wh-list').eq(idx).show();
         var o = $('button.wh-sum').eq(idx);
-        o.find('.wh-no:first').text(idx+1);
+        o.find('.wh-no:first').text(current_warehouse.spaces[idx]);
         o.find('span:first').removeClass();
         if( nd.status == 1 ) { 
             o.find('span:first').addClass('wh-normal');
@@ -130,17 +148,17 @@
         var s =(d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate()); 
 
         var flags = new Array(numOfStorage);
-        for( sid=1; sid<=numOfStorage; sid++) {
+        for( sid=0; sid<numOfStorage; sid++) {
             $.ajax({
                 type:'GET',
-                url: 'http://d.wsncm.com/311/' + sid + '/index' + s + '.txt',
+                url: 'http://d.wsncm.com/' + current_warehouse.id + '/' + current_warehouse.spaces[sid] + '/index' + s + '.txt',
                 storage: sid,
                 success: function(txt) {
-                    dl[this.storage-1] = DataList.create();
-                    dl[this.storage-1].load(txt);
+                    dl[this.storage] = DataList.create();
+                    dl[this.storage].load(txt);
                 } 
             }).always(function() {
-                flags[this.storage-1] = 1;
+                flags[this.storage] = 1;
                 for( i=0; i<numOfStorage; i++ ) {
                     if( !flags[i] ) return;
                 }
@@ -194,11 +212,25 @@
         }
     }
 
-    $(document).ready(function(){
-        if( g_graph ) g_graph.destroy();
+    function wrapup() {
         var dl = new Array(numOfStorage);
         loadData(dl, g_data);
         createDOMNodes();
+    }
+
+    $(document).ready(function(){
+        $('#whlists').change(function(){
+            if( !current_warehouse || current_warehouse.id == this.value ) return;
+            for(i=0; i<g_wh_list.length; i++) {
+                if( g_wh_list[i].id == this.value ) {
+                    current_warehouse = this.value;
+                    break;
+                }
+            }
+            wrapup();
+        });         
+
+        loadWareHouseList();
     });
 </script>
 
@@ -217,7 +249,7 @@
     全景
     </div>
     <div class="menu">
-    <span style="text-decoration: underline">仓库</span>：无锡中储十号库
+    <span style="text-decoration: underline">仓库</span>：<select id="whlists"></select>
     </div>
     <div class="clear">
     </div>
