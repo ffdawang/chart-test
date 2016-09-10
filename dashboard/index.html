@@ -14,27 +14,28 @@
 <script>
     var current_warhouse = -1;
 
-    var wh_list = null;
+    var g_wh_list = null;
 
     var addSpaces = function(n) {
         o = $('.numbers:first');
         o.children().remove();
-        for(i=0;i<n;i++) {
-            o.append($('<button class="number">' + (i+1) + '</button>'));
+        var s = n.trim().split(',');
+        for(i=0;i<s.length;i++) {
+            o.append($('<button class="number">' + (Number(s[i].trim())+1) + '</button>'));
         }
     }
 
     var loadWarehouseList = function() {
         $.get('data/warehouse.json', function(data) {
-            wh_list = data.warehouses;
+            g_wh_list = data.warehouses;
             o = $('#wh-list');
             for( i=0; i<data.warehouses.length; i++ ) {
                 o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
             }
             o.val($('#wh-list option:first').val());
             current_warehouse = $('#wh-list option:first').val();
-            for(i=0;i<wh_list.length;i++ )
-                if( wh_list[i].id == current_warehouse ) addSpaces(wh_list[i].numOfSpaces);
+            for(i=0;i<g_wh_list.length;i++ )
+                if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
             wrapup();
         })
     }
@@ -289,8 +290,8 @@
         $('#wh-list').change(function(){
             if( current_warehouse == this.value ) return;
             current_warehouse = this.value;
-            for(i=0;i<wh_list.length;i++ )
-                if( wh_list[i].id == current_warehouse ) addSpaces(wh_list[i].numOfSpaces);
+            for(i=0;i<g_wh_list.length;i++ )
+                if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
             wrapup();
         }); 
         loadWarehouseList();
