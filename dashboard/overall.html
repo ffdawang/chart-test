@@ -151,6 +151,8 @@
     function wrapup() {
         clearAllImages();
         if( g_graph ) g_graph.destroy();
+        g_graph = null;
+        g_data = null;
         loadData(current_warehouse)
     }
 
