@@ -12,28 +12,20 @@
 <script src="js/data.js"></script>
 <script src="js/jquery.mloading.js"></script>
 </head>
-
 <script>
-    var numOfStorage = -1;
-
-    var g_graph = null;
-
     var g_data = null;
 
-    var g_wh_list = null;
-
-    var current_warehouse = null;
+    var g_graph = null;
 
     function loadWareHouseList() {
         $.get('data/warehouse.json', function(data) {
             g_wh_list = data.warehouses;
-            o = $('#whlistx');
+            o = $('#whlists');
             for( i=0; i<data.warehouses.length; i++ ) {
                 o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
             }
-            o.val($('#whlistx option:first').val());
+            o.val($('#whlists option:first').val());
             current_warehouse = data.warehouses[0]; //$('#whlists option:first').val();
-            numOfStorage = data.warehouses[0].spaces.length;
             wrapup();
         })        
     }
@@ -79,113 +71,52 @@
         return g;
     }
 
-    function updateOnClick(t, data) {
-        $('body').mLoading();
-        var flags = new Array(data.length);
-        for( i=0; i<data.length; i++ ) {
-            nd = data[i];
-            var last = null;
-            var target = null;
-            while( nd != null ) {
-                if( nd.time >= t ) {
-                    if( nd.time == t ) target = nd;
-                    else target = last ? last : nd;
-                    break;
-                }
-                last = nd;
-                nd = nd.next; 
+    function updateOnClick(t, dl) {
+        if( !dl || !dl.head ) return;
+        $('body').mLoading('hide');
+        var nd = dl.head, last = null, target = null;
+        while( nd != null ) {
+            if( nd.time >= t ) {
+                if( nd.time == t ) target = nd;
+                else target = ( last ? last : nd );
+                break;
             }
-            if( !target ) target = last;
-            updateInfo(target, i, flags);
+            last = nd;
+            nd = nd.next;
+        }
+        if( !target ) target = last;
+        updateInfo(target);
+    }
+
+    function updateImages(o, images) {
+        o.children().remove();
+        for( i=0; i<images.length; i++ ) {
+            o.append($('<img src="' + images[i].url + '">'));
         }
     }
 
-    function updateInfo(nd, idx, flags) {
-        if( !nd || !nd.jsonurl ) {
-            $('div.wh-list').eq(idx).hide();
-            return;
-        }
-        if( $('div.wh-list').eq(idx).is(':hidden') )
-            $('div.wh-list').eq(idx).show();
-        var o = $('button.wh-sum').eq(idx);
-        o.find('.wh-no:first').text(current_warehouse.spaces[idx]);
-        o.find('span:first').removeClass();
-        if( nd.status == 1 ) { 
-            o.find('span:first').addClass('wh-normal');
-        } else {
-            o.find('span:first').addClass('wh-alarm');
-        }
-        o.find('span:first').text(nd.text);
-        o.find('.wh-detail:first').empty();
-        o.find('.wh-detail:first').append('重量: '+nd.weight+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;体积: ' + nd.volume + ' M3');
+    function clearAllImages() {
+        $('div.video-img').eq(0).children().remove();
+        $('div.shape-img').eq(0).children().remove();
+        $('div.shape-diff').eq(0).children().remove();
+    }
+
+    function updateInfo(nd) {
         $.ajax({
             type:'GET',
             url:nd.jsonurl,
-            obj: o,
             success:function(data) {
-                var len = data.shape.videoPic.length;
-                imgs = this.obj.next().find('div.images-b').eq(0);
-                imgs.empty();
-                scanimg = imgs.next();
-                scanimg.children().remove();
-                for(i=0;i<len;i++) {
-                    imgs.append($('<img src="' + data.shape.videoPic[i].url + '">'));
-                }
-                scanimg.append($('<img src="' + data.shape.shapePic[0].url + '">'));               
+                updateImages($('div.video-img').eq(0), data.shape.videoPic);
+                updateImages($('div.shape-img').eq(0), data.shape.shapePic);
+                updateImages($('div.shape-diff').eq(0), data.shape.shapePic_diff);
             }
         }).always(function(){
-            flags[idx] = 1;
-            for( i=0; i<flags.length; i++ ) {
-                if( !flags[i] ) return;
-            }
             $('body').mLoading('hide');
-        });
+        }) 
     }
 
-    function loadData(dl, data) {
-        $('body').mLoading();
-        var d = new Date();
-        var s =(d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate()); 
-
-        var flags = new Array(numOfStorage);
-        for( sid=0; sid<numOfStorage; sid++) {
-            $.ajax({
-                type:'GET',
-                url: 'http://d.wsncm.com/' + current_warehouse.id + '/' + current_warehouse.spaces[sid] + '/index' + s + '.txt',
-                storage: sid,
-                success: function(txt) {
-                    dl[this.storage] = DataList.create();
-                    dl[this.storage].load(txt);
-                } 
-            }).always(function() {
-                flags[this.storage] = 1;
-                for( i=0; i<numOfStorage; i++ ) {
-                    if( !flags[i] ) return;
-                }
-                prepareData(dl, data);
-                presentData(dl, data);
-            });
-        }
-    }
-
-    function prepareData(dl, data) {
-        var now = new Date();
-        var d = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), 0, 0, 0);
-        for( i=0; i<numOfStorage; i++ ) {
-            if( dl[i] ) data[i] = dl[i].since(d);
-        } 
-    }
-
-    function latestUpdateTime(dl) {
-        var m = new Date(1900,1,1,0,0,0);
-        for( i=0; i<dl.length; i++ ) {
-            if( dl[i] && dl[i].tail.time > m ) m = dl[i].tail.time;
-        }
-        return m;
-    }
-
-    function presentData(dl, data) {
-        var latest = latestUpdateTime(dl);
+    function prepareTimeline(dl) {
+        var latest = dl.tail.time;
         timeline = [];
         now = new Date;
         var d = new Date(now.getYear()+1900, now.getMonth(), now.getDate(), 0, 0, 0);
@@ -193,29 +124,34 @@
             timeline.push([d,0]);
             d = d.addMins(1);
         }
-        g_graph = createGraph(timeline); 
+        createGraph(timeline);         
     }
 
-    function createDOMNodes() {
-        o = $('div.main').eq(0);
-        for( i=0; i<numOfStorage; i++ ) {
-            item = $('<div class="wh-list"> <button class="wh-sum"> <div class="wh-no"></div> <div class="wh-status"><span class="wh-normal"></span></div> <div class="wh-detail"></div> </button> <div class="wh-img" style="display:none"> <div class="images-b"> </div> <div class="scan-image-b"> </div> <div class="clear"> </div> </div> </div>');    
-            item.hide();
-            o.append(item);
-        }
-        btns = $('button.wh-sum');
-        for( i=0;i<numOfStorage;i++) {
-            o = btns.eq(i);
-            o.on('click', {value:i, obj:o}, function(e){
-                e.data.obj.next().toggle(300);
-            });
-        }
+    function loadData(wh) {
+        $('body').mLoading();
+        var d = new Date();
+        var s =(d.getYear()+1900)+''+ (d.getMonth()+1<10?'0'+(d.getMonth()+1):(d.getMonth()+1)) + '' + (d.getDate()<10?'0'+d.getDate():d.getDate());         
+        $.ajax({
+            type:'GET',
+            url: 'http://d.wsncm.com/' +  wh.id + '/w/index' + s + '.txt',
+            success: function(txt) {
+                g_data = DataList.create();
+                g_data.load(txt);
+            }
+        }).always(function(){
+            if( !g_data || !g_data.head ) {
+                $('body').mLoading('hide');
+                return;
+            } 
+            prepareTimeline(g_data);
+            $('body').mLoading('hide');
+        });
     }
 
     function wrapup() {
-        var dl = new Array(numOfStorage);
-        loadData(dl, g_data);
-        createDOMNodes();
+        clearAllImages();
+        if( g_graph ) g_graph.destroy();
+        loadData(current_warehouse)
     }
 
     $(document).ready(function(){
@@ -223,13 +159,12 @@
             if( !current_warehouse || current_warehouse.id == this.value ) return;
             for(i=0; i<g_wh_list.length; i++) {
                 if( g_wh_list[i].id == this.value ) {
-                    current_warehouse = this.value;
+                    current_warehouse = g_wh_list[i];
                     break;
                 }
             }
             wrapup();
         });         
-
         loadWareHouseList();
     });
 </script>
