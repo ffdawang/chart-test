@@ -18,16 +18,21 @@
     var g_graph = null;
 
     function loadWareHouseList() {
-        $.get('data/warehouse.json', function(data) {
-            g_wh_list = data.warehouses;
-            o = $('#whlists');
-            for( i=0; i<data.warehouses.length; i++ ) {
-                o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+        $.ajax({
+            url:'data/warehouse.json',
+            type:'GET',
+            dataType:'json',
+            success:function(data){
+                g_wh_list = data.warehouses;
+                o = $('#whlists');
+                for( i=0; i<data.warehouses.length; i++ ) {
+                    o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+                }
+                o.val($('#whlists option:first').val());
+                current_warehouse = data.warehouses[0]; //$('#whlists option:first').val();
+                wrapup();
             }
-            o.val($('#whlists option:first').val());
-            current_warehouse = data.warehouses[0]; //$('#whlists option:first').val();
-            wrapup();
-        })        
+        });
     }
 
     function createGraph(data) {
