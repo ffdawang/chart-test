@@ -25,18 +25,23 @@
     }
 
     var loadWarehouseList = function() {
-        $.get('data/warehouse.json', function(data) {
-            g_wh_list = data.warehouses;
-            o = $('#wh-list');
-            for( i=0; i<data.warehouses.length; i++ ) {
-                o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+        $.ajax({
+            type:'GET',
+            url:'data/warehouse.json',
+            dataType:'json',
+            success: function(data){
+                g_wh_list = data.warehouses;
+                o = $('#wh-list');
+                for( i=0; i<data.warehouses.length; i++ ) {
+                    o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
+                }
+                o.val($('#wh-list option:first').val());
+                current_warehouse = $('#wh-list option:first').val();
+                for(i=0;i<g_wh_list.length;i++ )
+                    if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
+                wrapup();
             }
-            o.val($('#wh-list option:first').val());
-            current_warehouse = $('#wh-list option:first').val();
-            for(i=0;i<g_wh_list.length;i++ )
-                if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
-            wrapup();
-        })
+        });
     }
 
 
