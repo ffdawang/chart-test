@@ -16,6 +16,8 @@
 
     var g_wh_list = null;
 
+    var dataList = null;
+
     var addSpaces = function(n) {
         o = $('.numbers:first');
         o.children().remove();
@@ -255,7 +257,7 @@
         var timeObj = {t:null, h:null};
         // load data 
         $('button.number:first').addClass('number-active');
-        var dataList = DataList.create();
+        dataList = DataList.create();
         load(dataList, timeObj, 1);
         $('button.time-pick').on('click', function(e){
             var o = $(this);
