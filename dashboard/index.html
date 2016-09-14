@@ -26,6 +26,14 @@
         }
     }
 
+    function getLastSelected() {
+        if( typeof(Storage) !== 'undefined' ) {
+            return localStorage.getItem('lastSelectedWH');
+        } else 
+            console.log('localStorage not supported!');
+        return null;
+    }
+
     var loadWarehouseList = function() {
         $.ajax({
             type:'GET',
@@ -33,12 +41,22 @@
             dataType:'json',
             success: function(data){
                 g_wh_list = data.warehouses;
+                if( g_wh_list.length <= 0) return;
                 o = $('#wh-list');
                 for( i=0; i<data.warehouses.length; i++ ) {
                     o.append($('<option>', {value:data.warehouses[i].id, text:data.warehouses[i].name}));
                 }
-                o.val($('#wh-list option:first').val());
-                current_warehouse = $('#wh-list option:first').val();
+                last = getLastSelected();
+                current_warehouse = g_wh_list[0].id;
+                if( last ) {
+                    for(i=0;i<g_wh_list.length;i++ ) {
+                        if(last == g_wh_list[i].id) {
+                            current_warehouse = last;
+                            break;
+                        }
+                    }
+                } 
+                o.val(current_warehouse);
                 for(i=0;i<g_wh_list.length;i++ )
                     if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
                 wrapup();
@@ -299,6 +317,9 @@
             for(i=0;i<g_wh_list.length;i++ )
                 if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
             wrapup();
+            if( typeof(Storage) !== 'undefined' ) {
+                localStorage.setItem('lastSelectedWH', current_warehouse);
+            }
         }); 
         loadWarehouseList();
     }
