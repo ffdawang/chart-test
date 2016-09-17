@@ -18,6 +18,12 @@
 
     var dataList = null;
 
+    var firstShow = true;
+
+    var autoRefresh_timer = null;
+
+    var refresh_time = 60;
+
     var addSpaces = function(n) {
         o = $('.numbers:first');
         o.children().remove();
@@ -84,6 +90,7 @@
     var createGraph = function(data) {
         var dw = $('#display_weight');
         var dv = $('#display_volume');
+        var dt = $('#display_text');
         if( g_graph ) g_graph.destroy();
         g_graph = new Dygraph(
             document.getElementById("cangwei"),
@@ -113,6 +120,8 @@
                 valueFormatter:function(num, opt, name, g, row, col) {
                     if( name == 'Y1' ) dw.text(num);
                     else if( name == 'Y2') dv.text(num);
+                    nd = g_graph.getValue(row, 3);
+                    dt.text(nd.text);
                 },
                 clickCallback: function(e, x, point) {
                     for( i=0; i<g_graph.numRows(); i++) {
@@ -185,6 +194,18 @@
                 var ut = dataList.getUpdateTime();
                 if( ut != null ) $('#display_updatetime').text(ut);
                 $('body').mLoading('hide');
+                if( firstShow ) {
+                    firstShow = false;
+                    if( dataList.tail ) {
+                        var dw = $('#display_weight');
+                        var dv = $('#display_volume');        
+                        var dt = $('#display_text');        
+                        updateImages(dataList.tail);
+                        dw.text(dataList.tail.weight);
+                        dv.text(dataList.tail.volume);
+                        dt.text(dataList.tail.text);
+                    }
+                }
                 return;
             }
             loadData(dataList, day+1,tmobj, storageId);    
@@ -255,8 +276,8 @@
 
     function resetAll() {
         var dw = $('#display_weight');
-        dw.text('--');
         var dv = $('#display_volume');        
+        dw.text('--');
         dv.text('--');
         for( i=1; i<=4; i++ ) 
             $('#cam-'+i).attr('src','');
@@ -306,6 +327,7 @@
             if( o.hasClass('number-active')) return;
             $('button.number-active').removeClass('number-active');
             o.addClass('number-active');
+            firstShow = true;
             load(dataList, timeObj, Number(o.text()));
         })
     }
@@ -321,6 +343,31 @@
                 localStorage.setItem('lastSelectedWH', current_warehouse);
             }
         }); 
+
+        if( typeof(Storage) !== 'undefined') {
+            if( 'true'.localeCompare(localStorage.getItem('autoRefresh')) == 0 ) {
+                $('#autoRefresh').prop('checked', true);
+                autoRefresh_timer = setTimeout(function(){
+                    location.reload();
+                }, refresh_time*1000);
+            }
+        }
+
+        $('#autoRefresh').change(function(){
+            if( $(this).is(':checked')) {
+                if( typeof(Storage) !== 'undefined' ) {
+                    localStorage.setItem("autoRefresh","true");   
+                }
+                autoRefresh_timer = setTimeout( function() {
+                    location.reload();
+                }, refresh_time*1000)
+            } else {
+                if( typeof(Storage) !== 'undefined' ) {
+                    localStorage.removeItem("autoRefresh");   
+                }                
+                clearTimeout(autoRefresh_timer);
+            }
+        })
         loadWarehouseList();
     }
 );
@@ -344,6 +391,9 @@
     <div class="menu">
     	<span style="text-decoration: underline">仓库</span>：<select id="wh-list"></select>
     </div>
+    <div class="menu">
+        <input type="checkbox" name="box" id="autoRefresh"/>自动刷新 
+    </div>
     <div class="clear">
     </div>
 </div>
@@ -365,6 +415,7 @@
                 </div>
                 <div class="wh-info">
                     <span>
+                    信息：<label id="display_text">--</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     重量：<label id="display_weight">--</label> T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     体积：<label id="display_volume">--</label> M3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     更新时间：<label id="display_updatetime"></label>

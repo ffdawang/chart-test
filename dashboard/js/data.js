@@ -21,6 +21,12 @@ Date.prototype.fmtTime = function() {
         hr + ':' + mi + ':' + se ;
 }
 
+Date.prototype.fmtTime2 = function() {
+    hr = this.getHours() >= 10 ? this.getHours() : '0' + this.getHours();
+    mi = this.getMinutes() >= 10 ? this.getMinutes() : '0' + this.getMinutes();
+    return hr + ':' + mi;
+}
+
 var node = {
     create:function() {
         return {
