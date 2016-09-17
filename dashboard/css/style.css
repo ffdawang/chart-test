@@ -27,6 +27,18 @@ img {
   width: 1px;
 }
 
+.txtwnd {
+	font-size:10px;
+	height:15px;
+	width:30px;
+	line-height: 15px;
+	padding-left:3px;
+	background-color: #ffffff;
+	position: relative;
+	pointer-events: none;  
+	visibility: hidden;	
+}
+
 .banner {
 	background: #0c1719;
 	color: #ffffff;

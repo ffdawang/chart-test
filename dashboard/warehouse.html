@@ -24,6 +24,10 @@
 
     var current_warehouse = null;
 
+    var refresh_time = 60;
+
+    var autoRefresh_timer = null;    
+
     function getLastSelected() {
         if( typeof(Storage) !== 'undefined' ) {
             return localStorage.getItem('lastSelectedWH');
@@ -67,6 +71,10 @@
         var xline = document.createElement('div');
         xline.className = 'line xline';
         xline.style.top = '0px';
+        var txtWindow = document.createElement('div');
+        txtWindow.className = 'txtwnd';
+        txtWindow.style.top = '-40px';
+        txtWindow.style.height = '15px';
         g = new Dygraph(
             graph_div,
             data, 
@@ -89,16 +97,23 @@
                 highlightCallback: function(e, x, pts) {
                     xline.style.left = pts[0].canvasx + 'px';
                     xline.style.visibility = 'visible';
+                    txtWindow.style.left = (pts[0].canvasx + 5) + 'px';
+                    txtWindow.style.visibility = 'visible';
+                    t = new Date(x);
+                    $(txtWindow).text(t.fmtTime2());                    
                 },
                 unhighlightCallback: function(e) {
                     xline.style.visibility = 'hidden';
+                    txtWindow.style.visibility = 'hidden';
                 },
                 clickCallback: function(e, x, point ) {
                     updateOnClick(new Date(x), g_data);
                 }
             } 
         );
-        $(graph_div).children('div')[0].appendChild(xline);
+        o = $(graph_div).children('div')[0];
+        o.appendChild(xline);
+        o.appendChild(txtWindow);
         $('body').mLoading('hide');
         return g;
     }
@@ -225,6 +240,7 @@
             d = d.addMins(1);
         }
         g_graph = createGraph(timeline); 
+        updateOnClick(timeline[timeline.length-1], g_data);
     }
 
     function createDOMNodes() {
@@ -267,7 +283,30 @@
             }                 
             wrapup();
         });         
+        if( typeof(Storage) !== 'undefined') {
+            if( 'true'.localeCompare(localStorage.getItem('autoRefresh')) == 0 ) {
+                $('#autoRefresh').prop('checked', true);
+                autoRefresh_timer = setTimeout(function(){
+                    location.reload();
+                }, refresh_time*1000);
+            }
+        }
 
+        $('#autoRefresh').change(function(){
+            if( $(this).is(':checked')) {
+                if( typeof(Storage) !== 'undefined' ) {
+                    localStorage.setItem("autoRefresh","true");   
+                }
+                autoRefresh_timer = setTimeout( function() {
+                    location.reload();
+                }, refresh_time*1000)
+            } else {
+                if( typeof(Storage) !== 'undefined' ) {
+                    localStorage.removeItem("autoRefresh");   
+                }                
+                clearTimeout(autoRefresh_timer);
+            }
+        })
         loadWareHouseList();
     });
 </script>
@@ -288,6 +327,9 @@
     </div>
     <div class="menu">
     <span style="text-decoration: underline">仓库</span>：<select id="whlists"></select>
+    </div>
+    <div class="menu">
+        <input type="checkbox" name="box" id="autoRefresh"/>自动刷新 
     </div>
     <div class="clear">
     </div>
