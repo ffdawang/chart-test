@@ -24,7 +24,7 @@
 
     var current_warehouse = null;
 
-    var refresh_time = 60;
+    var refresh_time = 600;
 
     var autoRefresh_timer = null;    
 
@@ -80,6 +80,7 @@
             data, 
             {
                 drawGrid:false,
+				colors: ["#ffffff"],
                 axes: {
                     y: {
                         drawAxis: false,
