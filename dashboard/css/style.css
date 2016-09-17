@@ -136,7 +136,9 @@ img {
 .wh-info {
 	float: right;
 	margin-right: 20px;
-	font-size: 0.8em;
+	font-size: 0.8em;    
+	width: 50%;
+    text-align: right;
 }
 
 .image-container {
