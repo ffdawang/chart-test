@@ -150,7 +150,7 @@
         var o = $('button.wh-sum').eq(idx);
         o.find('.wh-no:first').text(current_warehouse.spaces[idx]);
         o.find('span:first').removeClass();
-        if( nd.status == 1 ) { 
+        if( nd.evtCode == 10 ) { 
             o.find('span:first').addClass('wh-normal');
         } else {
             o.find('span:first').addClass('wh-alarm');
