@@ -166,17 +166,21 @@ img {
 
 .images {
 	width: calc(50% - 7px);
-	padding: 2px;
+	width: calc(50vw - 40px);
+	/*padding: 2px;*/
 }
 
 .images img {
 	margin: 3px;
 	max-width: calc(50% - 6px);
 	float: left;
+	height: calc(18.5vw - 15px);
+	
 }
 
 .scan-image {
 	width: calc(50% - 10px);
+	width: calc(50vw - 45px);
     padding: 3px;
     margin-left: 4px;
 }
