@@ -135,10 +135,10 @@
                 underlayCallback: function(canvas, area, g) {
                     function highlight_event(x_start, eventType) {
                         var canvas_left_x = g.toDomXCoord(x_start);
-                        if(eventType==101) canvas.strokeStyle='#941b42';
-                        else if(eventType==102) canvas.strokeStyle='#95812f';
-                        else if(eventType==4) canvas.strokeStyle='#0055ff';
-                        canvas.lineWidth = 1;
+                        if(eventType==101) { canvas.strokeStyle='#941b42'; canvas.lineWidth = 1;}
+                        else if(eventType==102) { canvas.strokeStyle='#95812f'; canvas.lineWidth = 1;}
+                        else if(eventType==4) { canvas.strokeStyle='#00cf4e'; canvas.lineWidth = 2; };
+                        
                         canvas.beginPath();
                         canvas.moveTo(canvas_left_x, area.y);
                         canvas.lineTo(canvas_left_x, area.h);
