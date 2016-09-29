@@ -91,6 +91,7 @@
         var dw = $('#display_weight');
         var dv = $('#display_volume');
         var dt = $('#display_text');
+        var dut = $('#display_updatetime');
         if( g_graph ) g_graph.destroy();
         g_graph = new Dygraph(
             document.getElementById("cangwei"),
@@ -122,6 +123,8 @@
                     else if( name == 'Y2') dv.text(num);
                     nd = g_graph.getValue(row, 3);
                     dt.text(nd.text);
+                    ut = new Date(g_graph.getValue(row,0));
+                    dut.text(ut.fmtTime());
                 },
                 clickCallback: function(e, x, point) {
                     for( i=0; i<g_graph.numRows(); i++) {
