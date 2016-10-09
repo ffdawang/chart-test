@@ -143,6 +143,7 @@
     function updateInfo(nd, idx, flags) {
         if( !nd || !nd.jsonurl ) {
             $('div.wh-list').eq(idx).hide();
+            flags[idx] = 1;
             return;
         }
         if( $('div.wh-list').eq(idx).is(':hidden') )
@@ -205,8 +206,7 @@
                 }
                 if( prepareData(dl, data) )
                     presentData(dl, data);
-                else 
-                    $('body').mLoading('hide');
+                $('body').mLoading('hide');
             });
         }
     }
@@ -282,6 +282,9 @@
             if( typeof(Storage) !== 'undefined' ) {
                 localStorage.setItem('lastSelectedWH', current_warehouse.id);
             }                 
+            try{
+                g_graph.updateOptions({'file':[]});
+            } catch(err) { console.log(err); }
             wrapup();
         });         
         if( typeof(Storage) !== 'undefined') {
