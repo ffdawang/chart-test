@@ -14,6 +14,8 @@
 <script>
     var current_warhouse = -1;
 
+    var current_space = -1;
+
     var g_wh_list = null;
 
     var dataList = null;
@@ -37,6 +39,16 @@
             return localStorage.getItem('lastSelectedWH');
         } else 
             console.log('localStorage not supported!');
+        return null;
+    }
+
+    function getLastSpace() {
+        if( typeof(Storage) !== 'undefined' ) {
+            var n = localStorage.getItem('lastSelectedSpace');
+            if( !n ) return 1;
+            return n;
+        }
+        else console.log('localStorage not supported!');
         return null;
     }
 
@@ -299,9 +311,11 @@
     function wrapup() {
         var timeObj = {t:null, h:null};
         // load data 
-        $('button.number:first').addClass('number-active');
+        var n = getLastSpace();
+        $('button.number').filter(function(){ return $(this).text() == n; }).addClass('number-active');
+//        $('button.number:nth-child(' + n + ')').addClass('number-active');
         dataList = DataList.create();
-        load(dataList, timeObj, 1);
+        load(dataList, timeObj, n);
         $('button.time-pick').on('click', function(e){
             var o = $(this);
             if( o.hasClass('time-selected')) return;
@@ -332,6 +346,8 @@
             $('button.number-active').removeClass('number-active');
             o.addClass('number-active');
             firstShow = true;
+            if( typeof(Storage !== 'undefined' ))
+                localStorage.setItem('lastSelectedSpace', Number(o.text()));
             load(dataList, timeObj, Number(o.text()));
         })
     }
@@ -342,10 +358,11 @@
             current_warehouse = this.value;
             for(i=0;i<g_wh_list.length;i++ )
                 if( g_wh_list[i].id == current_warehouse ) addSpaces(g_wh_list[i].spaces);
-            wrapup();
             if( typeof(Storage) !== 'undefined' ) {
                 localStorage.setItem('lastSelectedWH', current_warehouse);
+                localStorage.removeItem('lastSelectedSpace');
             }
+            wrapup();
         }); 
 
         if( typeof(Storage) !== 'undefined') {

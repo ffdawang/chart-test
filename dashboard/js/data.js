@@ -52,7 +52,7 @@ var node = {
             nd.weight = parseFloat(Number(ar[1]).toFixed(3));
             nd.volume = parseFloat(Number(ar[3]).toFixed(3));
             nd.jsonurl = ar[0];
-            nd.imgUpdate = Number(ar[5].substr(0, ar[5].length-2));
+            nd.imgUpdate = Number(ar[5].substr(0, ar[5].length));
             nd.evtCode = Number(ar[6]);
             nd.status - Number(ar[7]);
             nd.text = ar[8];
@@ -66,13 +66,18 @@ var node = {
                 snd.volume = nd.volume;
                 snd.jsonurl = nd.jsonurl;
                 snd.imgUpdate = nd.imgUpdate;
-                snd.evtCode = nd.evtCode;
+                snd.evtCode = 10;
                 snd.status = nd.status;
                 snd.text = nd.text;
                 nd.next = snd;
                 nd = snd;
             }
-            if( nd.time > tt ) throw 'You give me rubbish data?';
+            if( nd.time > tt ) {
+                console.log(nd.time.fmtTime());
+                console.log(tt.fmtTime());
+                console.log(timestr);
+                throw 'You give me rubbish data?';
+            }
             if( nd.imgUpdate != Number(ar[5].substr(0,ar[5].length-2)) ||
                 nd.weight != Number(ar[1]) || nd.weight != Number(ar[3]) ) {
                 // info changed
